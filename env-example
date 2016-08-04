@@ -1,0 +1,10 @@
+AWS_ROLE_ARN=your-arn-here
+AWS_REGION=us-east-1
+AWS_FUNCTION_NAME=cms-audio-lambda
+AWS_HANDLER=index.handler
+AWS_MEMORY_SIZE=128
+AWS_TIMEOUT=10
+AWS_DESCRIPTION=Audio processing for cms.prx.org
+AWS_RUNTIME=nodejs4.3
+EXCLUDE_GLOBS=".env env-example *.log .git .gitignore config test"
+PACKAGE_DIRECTORY=build
