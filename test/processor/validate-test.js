@@ -39,7 +39,7 @@ describe('processor-validate', () => {
     );
   });
 
-  it('rejects non-image text files', () => {
+  it('rejects non-audio text files', () => {
     return processor.validate(helper.readPath('created.json')).then(
       (meta) => { throw 'should have gotten an error'; },
       (err) => {
