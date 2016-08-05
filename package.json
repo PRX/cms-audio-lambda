@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "npm test",
-    "test": "mocha test/",
-    "ci": "istanbul cover _mocha -- test/ && codecov",
-    "watch": "mocha test/ -w",
+    "test": "mocha test/**",
+    "ci": "istanbul cover _mocha -- test/** && codecov",
+    "watch": "mocha test/** -w",
     "deploy-dev": "AWS_ENVIRONMENT=development node-lambda deploy --configFile config/development.env",
     "deploy-staging": "AWS_ENVIRONMENT=staging node-lambda deploy --configFile config/staging.env",
     "deploy-prod": "AWS_ENVIRONMENT=production node-lambda deploy --configFile config/production.env"
@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.4.7",
+    "fluent-ffmpeg": "^2.1.0",
     "q": "^1.4.1",
     "request": "^2.73.0"
   },

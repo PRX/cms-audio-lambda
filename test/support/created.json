@@ -1,0 +1,18 @@
+{
+  "EventSource": "aws:sns",
+  "EventVersion": "1.0",
+  "EventSubscriptionArn": "gcarn:aws:sns:us-east-1:1234:test_announce_audio_create:49d1d24f-e873-45f9-b9c0-ea50f8a118f3",
+  "Sns": {
+    "Type": "Notification",
+    "MessageId": "526e76d4-781e-55be-8e01-26ddc5ad17af",
+    "TopicArn": "arn:aws:sns:us-east-1:561178107736:test_announce_audio_create",
+    "Subject": null,
+    "Message": "{\"message_id\":\"26ee6b69-37ac-4d5c-a15d-d567f5c2d12b\",\"app\":\"cms\",\"sent_at\":\"2016-07-26T21:56:18.553Z\",\"subject\":\"audio\",\"action\":\"create\",\"body\":\"{\\\"id\\\":123456,\\\"filename\\\":\\\"test.mp3\\\",\\\"caption\\\":\\\"mycaption\\\",\\\"credit\\\":\\\"\\\",\\\"uploadPath\\\":\\\"s3://something.mp3\\\",\\\"destinationPath\\\":\\\"public/audio_files/123456\\\",\\\"_links\\\":{\\\"self\\\":{\\\"href\\\":\\\"/api/v1/audio_files/123456\\\",\\\"profile\\\":\\\"http://meta.prx.org/model/audio_file/story/msg\\\"},\\\"profile\\\":{\\\"href\\\":\\\"http://meta.prx.org/model/audio_file/story/msg\\\"},\\\"curies\\\":[{\\\"name\\\":\\\"prx\\\",\\\"href\\\":\\\"http://meta.prx.org/relation/{rel}\\\",\\\"templated\\\":true}]}}\"}",
+    "Timestamp": "2016-07-20T17:57:07.176Z",
+    "SignatureVersion": "1",
+    "Signature": "a-big-long-string-bA==",
+    "SigningCertUrl": "https://something.pem",
+    "UnsubscribeUrl": "https://something",
+    "MessageAttributes": {}
+  }
+}
