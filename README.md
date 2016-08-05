@@ -1,5 +1,8 @@
 # cms-audio-lambda
 
+[![Build Status](https://snap-ci.com/PRX/cms-audio-lambda/branch/master/build_image)](https://snap-ci.com/PRX/cms-audio-lambda/branch/master)
+[![codecov](https://codecov.io/gh/PRX/cms-audio-lambda/branch/master/graph/badge.svg)](https://codecov.io/gh/PRX/cms-audio-lambda)
+
 ## Description
 
 Lambda worker to process/validate for [cms.prx.org](https://github.com/PRX/cms.prx.org) audio-file uploads.
