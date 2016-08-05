@@ -1,0 +1,17 @@
+#!/bin/bash
+FFMPEG_BIN="http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz"
+
+# we really only need ffprobe, for now
+if [ ! -f bin/ffprobe ]; then
+  echo "Downloading ffmpeg static build ..."
+  curl -s $FFMPEG_BIN | tar xz
+
+  echo "Moving to bin directory ..."
+  mkdir -p bin
+  mv ffmpeg-*-static/ffprobe bin/
+  rm -rf ffmpeg-*-static
+
+  echo "Done!"
+else
+  echo "ffmpeg already gotten"
+fi
