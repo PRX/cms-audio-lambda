@@ -25,6 +25,9 @@ exports.readFile = (name) => {
 exports.readPath = (name) => {
   return `${__dirname}/${name}`;
 }
+exports.readSize = (path) => {
+  return fs.statSync(path).size;
+}
 
 // temp file to s3
 const putFiles = {};
