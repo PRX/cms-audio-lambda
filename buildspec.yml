@@ -2,7 +2,11 @@ version: 0.1
 environment_variables:
   plaintext:
     FFPROBE_PATH: "bin/ffprobe"
+    BUILD_PHASE_MARKER: build_phase_complete
 phases:
+  install:
+    commands:
+      - echo $CODEBUILD_SOURCE_VERSION
   pre_build:
     commands:
       - npm install
@@ -11,10 +15,15 @@ phases:
   build:
     commands:
       - npm test
+      - touch $BUILD_PHASE_MARKER
       # - echo Compressing Lambda functions
       # - cd lambdas; find * -maxdepth 0 -type d|while read dirname; do cd "$dirname"; zip -r "$dirname" *; mv "$dirname".zip ..; cd ..; done; cd ..
       # - echo Starting S3 sync to $TEMPLATE_BUCKET
       # - aws s3 sync . s3://$TEMPLATE_BUCKET --acl private --region $AWS_REGION --delete --exclude ".git/*" --exclude "buildspec.yml"
+  post_build:
+    commands:
+      - test -e $BUILD_PHASE_MARKER
+      - ls -al
 artifacts:
   # It seems like CodePipeline and CodeBuild expect an artifact here. Currently
   # we don't need any, so this is essentially a no-op.
