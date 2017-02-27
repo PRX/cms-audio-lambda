@@ -4,7 +4,7 @@ FFMPEG_BIN="https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-stati
 # we really only need ffprobe, for now
 if [ ! -f bin/ffprobe ]; then
   echo "Downloading ffmpeg static build ..."
-  curl -s $FFMPEG_BIN | tar xz
+  curl -s $FFMPEG_BIN | tar xJz
   if [ $? -ne 0 ]; then
     echo "ERROR: unable to download ffmpeg binary!"
     exit 1
