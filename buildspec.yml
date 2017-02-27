@@ -1,4 +1,7 @@
 version: 0.1
+environment_variables:
+  plaintext:
+    FFPROBE_PATH: "bin/ffprobe"
 phases:
   pre_build:
     commands:
