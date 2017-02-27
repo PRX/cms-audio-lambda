@@ -27,7 +27,7 @@ phases:
       # TODO make the zip file name a template config
       - zip -r cms-audio-lambda.zip . -x .git
       - echo Copying zipped Lambda to S3 $CODE_BUCKET
-      - aws s3 cp s3://$CODE_BUCKET/cms-audio-lambda.zip cms-audio-lambda.zip
+      - aws s3 cp cms-audio-lambda.zip s3://$CODE_BUCKET/cms-audio-lambda.zip
       # TOD Get version ID and write it back to template config
 artifacts:
   # It seems like CodePipeline and CodeBuild expect an artifact here. Currently
