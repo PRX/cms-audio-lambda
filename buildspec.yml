@@ -3,6 +3,7 @@ phases:
   pre_build:
     commands:
       - npm install
+      - ./get-ffmpeg
   build:
     commands:
       - npm test
