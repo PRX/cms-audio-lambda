@@ -4,6 +4,8 @@ const Q = require('q');
 const AudioEvent = require('./lib/audio-event');
 const processor = require('./lib/processor');
 
+// TODO This is just a testing marker – 00001
+
 module.exports.handler = (event, context, callback) => {
   if (!event || !event.Records) {
     return callback(new Error('Invalid event input: ' + JSON.stringify(event, null, 2)));
