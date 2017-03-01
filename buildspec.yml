@@ -6,7 +6,8 @@ environment_variables:
 phases:
   install:
     commands:
-      - echo $CODEBUILD_SOURCE_VERSION
+      - apt-get update -y
+      - apt-get install -y jq
   pre_build:
     commands:
       - npm install
