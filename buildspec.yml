@@ -23,7 +23,12 @@ phases:
       - zip -r cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION) . -x .git
       - echo Copying zipped Lambda to S3 $CODE_BUCKET
       - aws s3 cp cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION) s3://$CODE_BUCKET/cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION)
-      # TODO Get version ID and write it back to template config
+      - aws s3 cp s3://$TEMPLATE_CONFIG_BUCKET/$TEMPLATE_CONFIG_ARTIFACT $TEMPLATE_CONFIG_ARTIFACT
+      - unzip $TEMPLATE_CONFIG_ARTIFACT
+      - jq --arg zip cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION) '.Parameters.CmsAudioLambdaZipName = $zip' staging.json > staging2.json
+      - rm staging.json && mv staging2.json staging.json
+      - zip $TEMPLATE_CONFIG_ARTIFACT staging.json
+      - aws s3 cp $TEMPLATE_CONFIG_ARTIFACT s3://$TEMPLATE_CONFIG_BUCKET/
 artifacts:
   # It seems like CodePipeline and CodeBuild expect an artifact here. Currently
   # we don't need any, so this is essentially a no-op.
