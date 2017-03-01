@@ -16,19 +16,14 @@ phases:
     commands:
       - npm test
       - touch $BUILD_PHASE_MARKER
-      # - echo Compressing Lambda functions
-      # - cd lambdas; find * -maxdepth 0 -type d|while read dirname; do cd "$dirname"; zip -r "$dirname" *; mv "$dirname".zip ..; cd ..; done; cd ..
-
-
   post_build:
     commands:
       - test -e $BUILD_PHASE_MARKER
       - echo Zipping Lambda code
-      # TODO make the zip file name a template config
-      - zip -r cms-audio-lambda.zip . -x .git
+      - zip -r cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION) . -x .git
       - echo Copying zipped Lambda to S3 $CODE_BUCKET
-      - aws s3 cp cms-audio-lambda.zip s3://$CODE_BUCKET/cms-audio-lambda.zip
-      # TOD Get version ID and write it back to template config
+      - aws s3 cp cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION) s3://$CODE_BUCKET/cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION)
+      # TODO Get version ID and write it back to template config
 artifacts:
   # It seems like CodePipeline and CodeBuild expect an artifact here. Currently
   # we don't need any, so this is essentially a no-op.
