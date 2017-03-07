@@ -8,9 +8,9 @@
     "test": "mocha test/**",
     "ci": "istanbul cover _mocha -- test/** && codecov",
     "watch": "mocha test/** -w",
-    "deploy-dev": "./get-ffmpeg && AWS_ENVIRONMENT=development node-lambda deploy --configFile config/development.env",
-    "deploy-staging": "./get-ffmpeg && AWS_ENVIRONMENT=staging node-lambda deploy --configFile config/staging.env",
-    "deploy-prod": "./get-ffmpeg && AWS_ENVIRONMENT=production node-lambda deploy --configFile config/production.env"
+    "deploy-dev": "./get-ffmpeg && node bin/deploy development",
+    "deploy-staging": "./get-ffmpeg && node bin/deploy staging",
+    "deploy-prod": "./get-ffmpeg && node bin/deploy production"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "dotenv": "^2.0.0",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3",
-    "node-lambda": "^0.8.6",
+    "node-lambda": "^0.8.13",
     "sinon": "^1.17.5"
   }
 }
