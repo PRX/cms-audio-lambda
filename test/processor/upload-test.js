@@ -7,13 +7,15 @@ describe('processor-upload', () => {
 
   const TEST_PATH = 'public/test_audios/1234';
 
-  before(() => {
+  let s3Path = helper.putS3TestFile('test.mp3');
+
+  beforeEach(() => {
     return helper.listS3Path(TEST_PATH).then(keys => {
       return helper.deleteS3(keys);
     });
   });
 
-  after(() => {
+  afterEach(() => {
     return helper.listS3Path(TEST_PATH).then(keys => {
       return helper.deleteS3(keys);
     });
@@ -22,16 +24,43 @@ describe('processor-upload', () => {
   it('uploads 2 copies of a file to s3', function() {
     this.timeout(4000);
 
-    let file = helper.readPath('test.mp3');
-    return processor.upload(file, TEST_PATH, 'output-file.okay.mp3').then(names => {
+    let file = {
+      name: 'test.mp3',
+      localPath: helper.readPath('test.mp3'),
+      path: TEST_PATH,
+      s3Bucket: null,
+      s3Key: null
+    };
+    return processor.uploadAndCopy(file).then(names => {
       expect(names.length).to.equal(2);
-      expect(names[0]).to.equal('output-file.okay.mp3');
-      expect(names[1]).to.equal('output-file.okay_broadcast.mp3');
+      expect(names[0]).to.equal('test.mp3');
+      expect(names[1]).to.equal('test_broadcast.mp3');
 
       return helper.listS3Path(TEST_PATH).then(keys => {
         expect(keys.length).to.equal(2);
-        expect(keys).to.include(`${TEST_PATH}/output-file.okay.mp3`);
-        expect(keys).to.include(`${TEST_PATH}/output-file.okay_broadcast.mp3`);
+        expect(keys).to.include(`${TEST_PATH}/test.mp3`);
+        expect(keys).to.include(`${TEST_PATH}/test_broadcast.mp3`);
+      });
+    });
+  });
+
+  it('copies originals directly from s3', function() {
+    this.timeout(4000);
+    let file = {
+      name: 'test.mp3',
+      localPath: helper.readPath('test.mp3'),
+      path: TEST_PATH,
+      s3Bucket: process.env.TEST_BUCKET,
+      s3Key: `${process.env.TEST_FOLDER}/test.mp3`
+    };
+    return processor.uploadAndCopy(file).then(names => {
+      expect(names.length).to.equal(2);
+      expect(names[0]).to.equal('test.mp3');
+      expect(names[1]).to.equal('test_broadcast.mp3');
+      return helper.listS3Path(TEST_PATH).then(keys => {
+        expect(keys.length).to.equal(2);
+        expect(keys).to.include(`${TEST_PATH}/test.mp3`);
+        expect(keys).to.include(`${TEST_PATH}/test_broadcast.mp3`);
       });
     });
   });
