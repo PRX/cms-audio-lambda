@@ -14,7 +14,8 @@ Triggered via SNS notifications (see [Announce](https://github.com/PRX/announce)
 1. Download the `upload_path` for the audio file object (from S3 or just HTTP)
 2. Run `ffprobe` against the file to verify it's an mp3 and gather other metadata
 3. Copy the original audio file to a destination S3 bucket/path (`public/audio_files/1234/filename.mp3`)
-4. Send success/failure/invalid messages back to CMS via SQS ([Shoryuken](https://github.com/phstc/shoryuken)), including some additional identify data about the audio length/type/etc.
+4. Make an additional copy for the "broadcast" version CMS wants to use (`public/audio_files/1234/filename_broadcast.mp3`)
+5. Send success/failure/invalid messages back to CMS via SQS ([Shoryuken](https://github.com/phstc/shoryuken)), including some additional identify data about the audio length/type/etc.
 
 #### On `delete`
 
@@ -32,21 +33,20 @@ npm test # or npm run watch
 
 ## Deploying
 
-Deployment to AWS is handled by [node-lambda](https://www.npmjs.com/package/node-lambda).  Before deploying,
-you'll need to `cp env-example .env`.  Really all you need to fill in is the `AWS_ROLE_ARN` - which is an IAM
-role you've setup with the correct permissions to:
+Deployment to AWS is handled by [node-lambda](https://www.npmjs.com/package/node-lambda),
+with some hacks! No native bindings are used (we bundle a prebuilt 64bit ffmpeg binary),
+so you can build/deploy this function from anywhere.
 
-1. Run lambda
-2. Read from your `upload_path` S3 bucket(s)
-3. Write to your `DESTINATION_BUCKET`
-4. Write to your `SQS_CALLBACK` queue
+To create a new Lambda function, you should `cp env-example .env`. Then manually
+deploy it using `./node_modules/node-lambda deploy -e [development|staging|production]`.
+This will create/overwrite any configuration changes you've made to the lambda, so you
+only want to use this for initial setup.
+
+To update an existing Lambda function, use the "deploy-ENV" scripts in `package.json`.
+No `.env` is required, as the non-secret configs are in the `/config` folder.
 
 ```
 npm run deploy-dev
 npm run deploy-staging
 npm run deploy-prod
 ```
-
-Then just run the correct command from `package.json` to deploy to your environment.  This will automatically
-give the lambda the correct name, as well as injecting any secret dotenv variables (from the config directory)
-into the run environment.
