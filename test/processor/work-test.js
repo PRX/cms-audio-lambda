@@ -22,13 +22,13 @@ describe('processor-work', () => {
   });
 
   before(() => {
-    return helper.listS3Path(TEST_DEST).then(keys => {
+    return helper.listS3Path(TEST_DEST, 0).then(keys => {
       return helper.deleteS3(keys);
     });
   });
 
   after(() => {
-    return helper.listS3Path(TEST_DEST).then(keys => {
+    return helper.listS3Path(TEST_DEST, 0).then(keys => {
       return helper.deleteS3(keys);
     });
   });

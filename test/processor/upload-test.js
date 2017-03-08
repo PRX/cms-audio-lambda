@@ -10,13 +10,13 @@ describe('processor-upload', () => {
   let s3Path = helper.putS3TestFile('test.mp3');
 
   beforeEach(() => {
-    return helper.listS3Path(TEST_PATH).then(keys => {
+    return helper.listS3Path(TEST_PATH, 0).then(keys => {
       return helper.deleteS3(keys);
     });
   });
 
   afterEach(() => {
-    return helper.listS3Path(TEST_PATH).then(keys => {
+    return helper.listS3Path(TEST_PATH, 0).then(keys => {
       return helper.deleteS3(keys);
     });
   });
@@ -26,6 +26,7 @@ describe('processor-upload', () => {
 
     let file = {
       name: 'test.mp3',
+      contentType: 'audio/mp3',
       localPath: helper.readPath('test.mp3'),
       path: TEST_PATH,
       s3Bucket: null,
@@ -40,6 +41,10 @@ describe('processor-upload', () => {
         expect(keys.length).to.equal(2);
         expect(keys).to.include(`${TEST_PATH}/test.mp3`);
         expect(keys).to.include(`${TEST_PATH}/test_broadcast.mp3`);
+
+        return helper.getContentTypes(keys).then(types => {
+          expect(types).to.have.members(['audio/mp3']);
+        });
       });
     });
   });
@@ -48,6 +53,8 @@ describe('processor-upload', () => {
     this.timeout(4000);
     let file = {
       name: 'test.mp3',
+      contentType: null,
+      format: 'mpfoo',
       localPath: helper.readPath('test.mp3'),
       path: TEST_PATH,
       s3Bucket: process.env.TEST_BUCKET,
@@ -57,10 +64,15 @@ describe('processor-upload', () => {
       expect(names.length).to.equal(2);
       expect(names[0]).to.equal('test.mp3');
       expect(names[1]).to.equal('test_broadcast.mp3');
+
       return helper.listS3Path(TEST_PATH).then(keys => {
         expect(keys.length).to.equal(2);
         expect(keys).to.include(`${TEST_PATH}/test.mp3`);
         expect(keys).to.include(`${TEST_PATH}/test_broadcast.mp3`);
+
+        return helper.getContentTypes(keys).then(types => {
+          expect(types).to.have.members(['audio/mpfoo']);
+        });
       });
     });
   });

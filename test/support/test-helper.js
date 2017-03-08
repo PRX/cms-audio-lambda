@@ -43,6 +43,7 @@ exports.putS3TestFile = (fileName, bucket, folder) => {
         ACL: 'public-read',
         Body: exports.readFile(fileName),
         Bucket: bucket,
+        ContentType: 'audio/mp3',
         Expires: exports.minutesFromNow(5),
         Key: `${folder}/${fileName}`
       });
@@ -52,13 +53,21 @@ exports.putS3TestFile = (fileName, bucket, folder) => {
 }
 
 // list files in a bucket folder
-exports.listS3Path = (pathPrefix) => {
-  return Q.ninvoke(s3, 'listObjects', {
-    Bucket: process.env.DESTINATION_BUCKET,
-    Prefix: pathPrefix
+exports.listS3Path = (pathPrefix, delay = 300) => {
+  return Q.delay(delay).then(() => {
+    return Q.ninvoke(s3, 'listObjects', {
+      Bucket: process.env.DESTINATION_BUCKET,
+      Prefix: pathPrefix
+    })
   }).then(data => {
     return data.Contents.map(c => c.Key);
   });
+}
+exports.getContentTypes = (keys) => {
+  return Q.all(keys.map(k => {
+    let params = {Bucket: process.env.DESTINATION_BUCKET, Key: k};
+    return Q.ninvoke(s3, 'headObject', params).then(data => data.ContentType);
+  }));
 }
 exports.deleteS3 = (keys) => {
   if (keys.length < 1) return;
