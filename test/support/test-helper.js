@@ -43,7 +43,7 @@ exports.putS3TestFile = (fileName, bucket, folder) => {
         ACL: 'public-read',
         Body: exports.readFile(fileName),
         Bucket: bucket,
-        ContentType: 'audio/mp3',
+        ContentType: 'audio/mpeg',
         Expires: exports.minutesFromNow(5),
         Key: `${folder}/${fileName}`
       });

@@ -43,7 +43,7 @@ describe('processor-upload', () => {
         expect(keys).to.include(`${TEST_PATH}/test_broadcast.mp3`);
 
         return helper.getContentTypes(keys).then(types => {
-          expect(types).to.have.members(['audio/mp3']);
+          expect(types).to.have.members(['audio/mpeg']);
         });
       });
     });
@@ -54,7 +54,7 @@ describe('processor-upload', () => {
     let file = {
       name: 'test.mp3',
       contentType: null,
-      format: 'mpfoo',
+      format: 'something',
       localPath: helper.readPath('test.mp3'),
       path: TEST_PATH,
       s3Bucket: process.env.TEST_BUCKET,
@@ -71,7 +71,7 @@ describe('processor-upload', () => {
         expect(keys).to.include(`${TEST_PATH}/test_broadcast.mp3`);
 
         return helper.getContentTypes(keys).then(types => {
-          expect(types).to.have.members(['audio/mpfoo']);
+          expect(types).to.have.members(['audio/something']);
         });
       });
     });
