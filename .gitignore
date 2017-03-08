@@ -6,4 +6,5 @@ build
 node_modules
 .DS_Store
 coverage
-bin/
+bin/*
+!bin/deploy.js
