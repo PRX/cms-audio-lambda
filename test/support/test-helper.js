@@ -53,7 +53,8 @@ exports.putS3TestFile = (fileName, bucket, folder) => {
 }
 
 // list files in a bucket folder
-exports.listS3Path = (pathPrefix, delay = 300) => {
+exports.listS3Path = (pathPrefix, delay) => {
+  delay = (delay === undefined) ? 500 : delay;
   return Q.delay(delay).then(() => {
     return Q.ninvoke(s3, 'listObjects', {
       Bucket: process.env.DESTINATION_BUCKET,
