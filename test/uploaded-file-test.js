@@ -50,13 +50,23 @@ describe('uploaded-file', () => {
     expect(file.processed).to.equal(true);
   });
 
+  it('sets error messages', () => {
+    let file = new UploadedFile({});
+    expect(file.error).to.equal(null);
+    file.setError();
+    expect(file.error).to.equal(null);
+    file.setError(new Error('Something went wrong'));
+    expect(file.error).to.equal('Something went wrong');
+  });
+
   it('serializes to json', () => {
     let file = new UploadedFile({audioId: 1234, audioType: 'foo', audioDestinationPath: 'foo/bar'});
     file.setDownloaded({name: 'foo.bar'});
     file.setValidated();
     let json = JSON.parse(file.toJSON());
     expect(json).to.have.keys('id', 'path', 'name', 'duration', 'size', 'format',
-      'bitrate', 'frequency', 'channels', 'layout', 'downloaded', 'valid', 'processed');
+      'bitrate', 'frequency', 'channels', 'layout', 'downloaded', 'valid',
+      'processed', 'error');
     expect(json.id).to.equal(1234);
     expect(json.path).to.equal('foo/bar');
   });
