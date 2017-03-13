@@ -27,12 +27,12 @@ describe('processor-download', () => {
     });
   });
 
-  it('throws missing download errors', () => {
+  it('handles missing download errors', () => {
     return processor.download(null).then(
       (data) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/no url set/i);
-        expect(err.fromDownload).to.be.falsey;
+        expect(err.fromDownload).to.be.true;
       }
     );
   });
