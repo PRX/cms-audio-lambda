@@ -2,6 +2,12 @@
 
 const helper = require('./support/test-helper');
 const UploadedFile = require('../lib/uploaded-file');
+const mimeType = (format, type) => {
+  let file = new UploadedFile({});
+  file.format = format;
+  file.contentType = type;
+  return file.mimeType();
+}
 
 describe('uploaded-file', () => {
 
@@ -53,6 +59,23 @@ describe('uploaded-file', () => {
       'bitrate', 'frequency', 'channels', 'layout', 'downloaded', 'valid', 'processed');
     expect(json.id).to.equal(1234);
     expect(json.path).to.equal('foo/bar');
+  });
+
+  it('gets translated mimetype from file format', () => {
+    expect(mimeType('foo')).to.equal('audio/foo');
+    expect(mimeType('mp1')).to.equal('audio/mpeg');
+    expect(mimeType('mp2')).to.equal('audio/mpeg');
+    expect(mimeType('mp3')).to.equal('audio/mpeg');
+    expect(mimeType('mpg')).to.equal('audio/mpeg');
+    expect(mimeType('mpeg')).to.equal('audio/mpeg');
+    expect(mimeType('mp4')).to.equal('audio/mp4');
+    expect(mimeType('m4a')).to.equal('audio/mp4');
+  });
+
+  it('falls back to the mimetype from the downloaded file', () => {
+    expect(mimeType(null, 'foo/bar')).to.equal('foo/bar');
+    expect(mimeType(null, 'any/thing')).to.equal('any/thing');
+    expect(mimeType(null, null)).to.equal(undefined);
   });
 
   describe('with an sqs queue', () => {

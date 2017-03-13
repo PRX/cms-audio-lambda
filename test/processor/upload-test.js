@@ -26,7 +26,7 @@ describe('processor-upload', () => {
 
     let file = {
       name: 'test.mp3',
-      contentType: 'audio/mp3',
+      mimeType: () => 'audio/mpeg',
       localPath: helper.readPath('test.mp3'),
       path: TEST_PATH,
       s3Bucket: null,
@@ -53,8 +53,7 @@ describe('processor-upload', () => {
     this.timeout(4000);
     let file = {
       name: 'test.mp3',
-      contentType: null,
-      format: 'something',
+      mimeType: () => 'audio/something',
       localPath: helper.readPath('test.mp3'),
       path: TEST_PATH,
       s3Bucket: process.env.TEST_BUCKET,
