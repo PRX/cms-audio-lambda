@@ -22,7 +22,7 @@ describe('processor-download', () => {
     return processor.download(url).then(data => {
       expect(data.name).to.equal('test.mp3');
       expect(data.localPath).to.equal('/tmp/test.mp3');
-      expect(data.contentType).to.equal('audio/mp3');
+      expect(data.contentType).to.equal('audio/mpeg');
       expect(helper.readSize(data.localPath)).to.equal(12582);
     });
   });
