@@ -74,6 +74,7 @@ describe('processor-work', () => {
       expect(file.downloaded).to.equal(true);
       expect(file.valid).to.equal(false);
       expect(file.processed).to.equal(false);
+      expect(file.error).to.match(/non-audio file/i);
     });
   });
 
@@ -87,6 +88,7 @@ describe('processor-work', () => {
       expect(file.downloaded).to.equal(false);
       expect(file.valid).to.equal(false);
       expect(file.processed).to.equal(false);
+      expect(file.error).to.match(/got 403 for url:/i);
     });
   });
 
@@ -101,6 +103,7 @@ describe('processor-work', () => {
         expect(file.downloaded).to.equal(true);
         expect(file.valid).to.equal(true);
         expect(file.processed).to.equal(false);
+        expect(file.error).to.be.null;
       }
     );
   });
@@ -113,6 +116,8 @@ describe('processor-work', () => {
       (success) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/sqs-err/i);
+        let file = getUploadedFile();
+        expect(file.error).to.be.null;
       }
     );
   });
