@@ -1,17 +1,14 @@
 'use strict';
 
 const Q = require('q');
+const logger = require('./lib/logger');
 const AudioEvent = require('./lib/audio-event');
 const processor = require('./lib/processor');
 
-// TODO This is just a testing marker – 00001
-
 module.exports.handler = (event, context, callback) => {
   if (!event || !event.Records) {
-    return callback(new Error('Invalid event input: ' + JSON.stringify(event, null, 2)));
-  }
-  if (process.env.DEBUG) {
-    console.log('Incoming:', JSON.stringify(event, null, 2));
+    logger.error(`Invalid event input: ${JSON.stringify(event)}`);
+    return callback(null); // don't retry
   }
 
   // sort by task
@@ -28,10 +25,9 @@ module.exports.handler = (event, context, callback) => {
     }
   });
 
-  // invalid is insanity, so actually throw an error and abort
+  // invalid is insanity, so log those errors and skip them
   if (invalids.length) {
-    let invalidMsgs = invalids.map(ae => ae.invalid).join(', ');
-    return callback(new Error(`Invalid records: ${invalidMsgs}`));
+    invalids.forEach(ae => logger.error(`Invalid record: ${ae.invalid}`));
   }
 
   // process valid records
@@ -39,11 +35,15 @@ module.exports.handler = (event, context, callback) => {
   let deleteWork = deletes.map(ae => Q('TODO'));
   Q.all(processWork.concat(deleteWork)).done(
     results => {
-      let out = {processed: processes.length, deleted: deletes.length, skipped: skips.length};
-      if (process.env.DEBUG) {
-        console.log('Out:', JSON.stringify(out));
-      }
-      callback(null, out);
+      logger.info(`Processed: ${processes.length}`);
+      logger.info(`Deleted: ${deletes.length}`);
+      logger.log(`Skipped: ${skips.length}`);
+      callback(null, {
+        invalid: invalids.length,
+        processed: processes.length,
+        deleted: deletes.length,
+        skipped: skips.length
+      });
     },
     err => callback(err)
   );
