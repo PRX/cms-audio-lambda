@@ -42,7 +42,7 @@ describe('processor-download', () => {
       (data) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/no url set/i);
-        expect(err.fromDownload).to.be.true;
+        expect(err.noRetry).to.be.true;
       }
     );
   });
@@ -53,7 +53,7 @@ describe('processor-download', () => {
       (data) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/access denied/i);
-        expect(err.fromDownload).to.be.true;
+        expect(err.noRetry).to.be.true;
       }
     );
   });
@@ -64,7 +64,18 @@ describe('processor-download', () => {
       (data) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/got 404 for/i);
-        expect(err.fromDownload).to.be.true;
+        expect(err.noRetry).to.be.true;
+      }
+    );
+  });
+
+  it('retries http 5xx errors', () => {
+    nock('http://foo.bar').get('/503.mp3').reply(503);
+    return processor.download('http://foo.bar/503.mp3').then(
+      (data) => { throw 'should have gotten an error'; },
+      (err) => {
+        expect(err.message).to.match(/got 503 for url/i);
+        expect(err.noRetry).to.be.undefined;
       }
     );
   });
@@ -75,7 +86,7 @@ describe('processor-download', () => {
       (data) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/ENOTFOUND/i);
-        expect(err.fromDownload).to.be.true;
+        expect(err.noRetry).to.be.true;
       }
     );
   });
@@ -86,7 +97,7 @@ describe('processor-download', () => {
       (data) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/key does not exist/i);
-        expect(err.fromDownload).to.be.true;
+        expect(err.noRetry).to.be.true;
       }
     );
   });
@@ -97,19 +108,19 @@ describe('processor-download', () => {
       (data) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/unrecognized url format/i);
-        expect(err.fromDownload).to.be.true;
+        expect(err.noRetry).to.be.true;
       }
     );
   });
 
-  it('throws content-length mismatch errors', () => {
+  it('retries content-length mismatch errors', () => {
     nock('http://foo.bar').get('/mismatch.mp3').reply(200, '--mp3--', {'Content-Length': 11});
     return processor.download('http://foo.bar/mismatch.mp3').then(
       (data) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/expected 11 bytes/i);
         expect(err.message).to.match(/got 7/i);
-        expect(err.fromDownload).to.be.falsey;
+        expect(err.noRetry).to.be.undefined;
       }
     );
   });

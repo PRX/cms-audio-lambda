@@ -34,7 +34,7 @@ describe('processor-work', () => {
   });
 
   // spy on uploaded-file callbacks
-  beforeEach(() => sinon.stub(UploadedFile.prototype, 'callback'));
+  beforeEach(() => sinon.stub(UploadedFile.prototype, 'callback').returns(Q('anything')));
   afterEach(() => UploadedFile.prototype.callback.restore());
   const getUploadedFile = () => {
     expect(UploadedFile.prototype.callback.callCount).to.equal(1);
@@ -68,13 +68,13 @@ describe('processor-work', () => {
     ae.body.uploadPath = `https://s3.amazonaws.com/${s3ImagePath}`;
     expect(ae.invalid).to.be.undefined;
     return processor.work(ae).then(success => {
-      expect(success).to.be.false;
+      expect(success).to.be.true;
 
       let file = getUploadedFile();
       expect(file.downloaded).to.equal(true);
       expect(file.valid).to.equal(false);
-      expect(file.processed).to.equal(false);
-      expect(file.error).to.match(/non-audio file/i);
+      expect(file.processed).to.equal(true);
+      expect(file.error).to.be.null;
     });
   });
 
@@ -92,6 +92,20 @@ describe('processor-work', () => {
     });
   });
 
+  it('throws 500 download errors', function() {
+    nock('http://foo.bar').get('/fivehundred.mp3').reply(500);
+    ae.body.uploadPath = `http://foo.bar/fivehundred.mp3`;
+    expect(ae.invalid).to.be.undefined;
+    return processor.work(ae).then(
+      (success) => { throw new Error('should have gotten an error'); },
+      (err) => {
+        expect(err.message).to.match(/got 500 for/i);
+        expect(UploadedFile.prototype.callback.callCount).to.equal(0);
+      }
+    );
+
+  });
+
   it('throws upload errors', function() {
     sinon.stub(processor, 'uploadAndCopy').returns(Q.reject(new Error('upload-err')));
     return processor.work(ae).then(
@@ -99,11 +113,7 @@ describe('processor-work', () => {
       (err) => {
         processor.uploadAndCopy.restore();
         expect(err.message).to.match(/upload-err/i);
-        let file = getUploadedFile();
-        expect(file.downloaded).to.equal(true);
-        expect(file.valid).to.equal(true);
-        expect(file.processed).to.equal(false);
-        expect(file.error).to.be.null;
+        expect(UploadedFile.prototype.callback.callCount).to.equal(0);
       }
     );
   });

@@ -76,7 +76,7 @@ describe('processor-validate', () => {
       (meta) => { throw new Error('should have gotten an error'); },
       (err) => {
         expect(err.message).to.match(/some unknown error/i);
-        expect(err.fromValidate).to.equal(true);
+        expect(err.noRetry).to.equal(true);
       }
     );
   });
