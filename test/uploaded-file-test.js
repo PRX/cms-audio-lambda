@@ -34,7 +34,7 @@ describe('uploaded-file', () => {
     expect(file.valid).to.equal(false);
     file.setValidated();
     expect(file.valid).to.equal(false);
-    file.setValidated({duration: 1, size: 2, format: 'mp3'});
+    file.setValidated({duration: 1, size: 2, format: 'mp3', hasAudio: true});
     expect(file.valid).to.equal(true);
     expect(file.duration).to.equal(1);
     expect(file.size).to.equal(2);
@@ -64,9 +64,10 @@ describe('uploaded-file', () => {
     file.setDownloaded({name: 'foo.bar'});
     file.setValidated();
     let json = JSON.parse(file.toJSON());
-    expect(json).to.have.keys('id', 'path', 'name', 'duration', 'size', 'format',
-      'bitrate', 'frequency', 'channels', 'layout', 'downloaded', 'valid',
-      'processed', 'error');
+    expect(json).to.have.keys('id', 'path', 'name', 'size',
+      'hasAudio', 'duration', 'durationMs', 'format', 'bitrate', 'frequency', 'channels', 'layout',
+      'hasVideo', 'videoFormat',
+      'downloaded', 'valid', 'processed', 'error');
     expect(json.id).to.equal(1234);
     expect(json.path).to.equal('foo/bar');
   });
