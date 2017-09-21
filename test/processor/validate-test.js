@@ -14,7 +14,7 @@ describe('processor-validate', () => {
       expect(meta.frequency).to.equal(44100);
       expect(meta.channels).to.equal(1);
       expect(meta.layout).to.equal('mono');
-      expect(meta.hasVideo).to.be.undefined;
+      expect(meta.hasVideo).to.equal(false);
     });
   });
 
@@ -27,7 +27,7 @@ describe('processor-validate', () => {
       expect(meta.frequency).to.equal(44100);
       expect(meta.channels).to.equal(2);
       expect(meta.layout).to.equal('stereo');
-      expect(meta.hasVideo).to.be.undefined;
+      expect(meta.hasVideo).to.equal(false);
     });
   });
 
@@ -46,31 +46,36 @@ describe('processor-validate', () => {
     });
   });
 
-  it('rejects non-audio binary files', () => {
-    return processor.validate(helper.readPath('png.mp3')).then(
-      (meta) => { throw 'should have gotten an error'; },
-      (err) => {
-        expect(err.message).to.match(/unrecognized file/i);
-        expect(err.fromValidate).to.equal(true);
-      }
-    );
+  it('detects non-audio binary files', () => {
+    return processor.validate(helper.readPath('png.mp3')).then(meta => {
+      expect(meta.size).to.equal(8551);
+      expect(meta.hasAudio).to.equal(false);
+      expect(meta.hasVideo).to.equal(false);
+    });
   });
 
-  it('rejects non-audio text files', () => {
-    return processor.validate(helper.readPath('created.json')).then(
-      (meta) => { throw 'should have gotten an error'; },
-      (err) => {
-        expect(err.message).to.match(/invalid data found/i);
-        expect(err.fromValidate).to.equal(true);
-      }
-    );
+  it('detects non-audio text files', () => {
+    return processor.validate(helper.readPath('created.json')).then(meta => {
+      expect(meta.size).to.equal(1382);
+      expect(meta.hasAudio).to.equal(false);
+      expect(meta.hasVideo).to.equal(false);
+    });
   });
 
-  it('rejects corrupt audio files', () => {
-    return processor.validate(helper.readPath('corrupt.mp3')).then(
-      (meta) => { throw 'should have gotten an error'; },
+  it('detects corrupt audio files', () => {
+    return processor.validate(helper.readPath('corrupt.mp3')).then(meta => {
+      expect(meta.size).to.equal(52720);
+      expect(meta.hasAudio).to.equal(false);
+      expect(meta.hasVideo).to.equal(false);
+    });
+  });
+
+  it('rejects unknown ffprobe failures', () => {
+    let err = Q.reject(new Error('Some unknown error'));
+    return processor.validate(helper.readPath('test.mp3'), err).then(
+      (meta) => { throw new Error('should have gotten an error'); },
       (err) => {
-        expect(err.message).to.match(/failed to read frame size/i);
+        expect(err.message).to.match(/some unknown error/i);
         expect(err.fromValidate).to.equal(true);
       }
     );
