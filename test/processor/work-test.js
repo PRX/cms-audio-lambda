@@ -8,6 +8,7 @@ describe('processor-work', () => {
 
   const TEST_DEST = `${process.env.TEST_FOLDER}/2345`;
 
+  let logs = helper.spyLogger();
   let s3AudioPath = helper.putS3TestFile('test.mp3');
   let s3ImagePath = helper.putS3TestFile('png.mp3');
 
@@ -89,6 +90,8 @@ describe('processor-work', () => {
       expect(file.valid).to.equal(false);
       expect(file.processed).to.equal(false);
       expect(file.error).to.match(/got 403 for url:/i);
+      expect(logs.warn.length).to.equal(1);
+      expect(logs.warn[0]).to.match(/got 403 for url:/i);
     });
   });
 
