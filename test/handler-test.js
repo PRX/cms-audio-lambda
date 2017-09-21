@@ -64,4 +64,16 @@ describe('handler', () => {
     });
   });
 
+  it('logs retryable errors thrown by the worker', (done) => {
+    nock('http://foo.bar').get('/503.mp3').reply(503);
+    let retryable = helper.buildRaw('create', {id: 1234, destinationPath: 'foo', uploadPath: 'http://foo.bar/503.mp3'});
+    handler({Records: [retryable]}, null, (err, result) => {
+      expect(err).to.be.an.instanceof(Error);
+      expect(err).to.match(/got 503/i);
+      expect(logs.error.length).to.equal(1);
+      expect(logs.error[0]).to.match(/got 503/i);
+      done();
+    });
+  });
+
 });

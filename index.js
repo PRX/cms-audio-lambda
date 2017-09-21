@@ -45,6 +45,9 @@ module.exports.handler = (event, context, callback) => {
         skipped: skips.length
       });
     },
-    err => callback(err)
+    err => {
+      logger.error(err.message || `${err}`);
+      callback(err);
+    }
   );
 }
