@@ -14,6 +14,7 @@ describe('processor-validate', () => {
       expect(meta.frequency).to.equal(44100);
       expect(meta.channels).to.equal(1);
       expect(meta.layout).to.equal('mono');
+      expect(meta.hasVideo).to.be.undefined;
     });
   });
 
@@ -26,6 +27,22 @@ describe('processor-validate', () => {
       expect(meta.frequency).to.equal(44100);
       expect(meta.channels).to.equal(2);
       expect(meta.layout).to.equal('stereo');
+      expect(meta.hasVideo).to.be.undefined;
+    });
+  });
+
+  it('returns mp4 file metadata', () => {
+    return processor.validate(helper.readPath('test.mp4')).then(meta => {
+      expect(meta.hasAudio).to.equal(true);
+      expect(meta.duration).to.equal(6);
+      expect(meta.size).to.equal(383631);
+      expect(meta.format).to.equal('aac');
+      expect(meta.bitrate).to.equal(83050);
+      expect(meta.frequency).to.equal(48000);
+      expect(meta.channels).to.equal(1);
+      expect(meta.layout).to.equal('mono');
+      expect(meta.hasVideo).to.equal(true);
+      expect(meta.videoFormat).to.equal('h264');
     });
   });
 
@@ -33,7 +50,7 @@ describe('processor-validate', () => {
     return processor.validate(helper.readPath('png.mp3')).then(
       (meta) => { throw 'should have gotten an error'; },
       (err) => {
-        expect(err.message).to.match(/non-audio file/i);
+        expect(err.message).to.match(/unrecognized file/i);
         expect(err.fromValidate).to.equal(true);
       }
     );
