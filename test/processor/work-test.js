@@ -93,11 +93,11 @@ describe('processor-work', () => {
   });
 
   it('throws upload errors', function() {
-    sinon.stub(processor, 'upload').returns(Q.reject(new Error('upload-err')));
+    sinon.stub(processor, 'uploadAndCopy').returns(Q.reject(new Error('upload-err')));
     return processor.work(ae).then(
       (success) => { throw 'should have gotten an error'; },
       (err) => {
-        processor.upload.restore();
+        processor.uploadAndCopy.restore();
         expect(err.message).to.match(/upload-err/i);
         let file = getUploadedFile();
         expect(file.downloaded).to.equal(true);
