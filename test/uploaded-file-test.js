@@ -2,10 +2,9 @@
 
 const helper = require('./support/test-helper');
 const UploadedFile = require('../lib/uploaded-file');
-const mimeType = (format, type) => {
+const mimeType = (overrides) => {
   let file = new UploadedFile({});
-  file.format = format;
-  file.contentType = type;
+  Object.keys(overrides).forEach(k => file[k] = overrides[k]);
   return file.mimeType();
 }
 
@@ -88,21 +87,27 @@ describe('uploaded-file', () => {
     expect(json.path).to.equal('foo/bar');
   });
 
-  it('gets translated mimetype from file format', () => {
-    expect(mimeType('foo')).to.equal('audio/foo');
-    expect(mimeType('mp1')).to.equal('audio/mpeg');
-    expect(mimeType('mp2')).to.equal('audio/mpeg');
-    expect(mimeType('mp3')).to.equal('audio/mpeg');
-    expect(mimeType('mpg')).to.equal('audio/mpeg');
-    expect(mimeType('mpeg')).to.equal('audio/mpeg');
-    expect(mimeType('mp4')).to.equal('audio/mp4');
-    expect(mimeType('m4a')).to.equal('audio/mp4');
-  });
+  describe('mimeType', () => {
 
-  it('falls back to the mimetype from the downloaded file', () => {
-    expect(mimeType(null, 'foo/bar')).to.equal('foo/bar');
-    expect(mimeType(null, 'any/thing')).to.equal('any/thing');
-    expect(mimeType(null, null)).to.equal(undefined);
+    helper.spyLogger();
+
+    it('translates audio formats', () => {
+      expect(mimeType({audio: {}})).to.equal('application/octet-stream');
+      expect(mimeType({audio: {format: 'foo'}})).to.equal('audio/foo');
+      expect(mimeType({audio: {format: 'mp3'}})).to.equal('audio/mpeg');
+    });
+
+    it('translates video types', () => {
+      expect(mimeType({video: {}})).to.equal('application/octet-stream');
+      expect(mimeType({video: {format: 'foo'}})).to.equal('video/foo');
+      expect(mimeType({video: {format: 'h264'}})).to.equal('video/mp4');
+    });
+
+    it('falls back with no audio/video', () => {
+      expect(mimeType({})).to.equal('application/octet-stream');
+      expect(mimeType({contentType: 'foo/bar'})).to.equal('foo/bar');
+    });
+
   });
 
   describe('with an sqs queue', () => {
