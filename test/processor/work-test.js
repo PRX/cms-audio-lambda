@@ -95,18 +95,17 @@ describe('processor-work', () => {
     });
   });
 
-  it('throws 500 download errors', function() {
-    nock('http://foo.bar').get('/fivehundred.mp3').reply(500);
+  it('throws 503 download errors', function() {
+    nock('http://foo.bar').get('/fivehundred.mp3').reply(503);
     ae.body.uploadPath = `http://foo.bar/fivehundred.mp3`;
     expect(ae.invalid).to.be.undefined;
     return processor.work(ae).then(
       (success) => { throw new Error('should have gotten an error'); },
       (err) => {
-        expect(err.message).to.match(/got 500 for/i);
+        expect(err.message).to.match(/got 503 for/i);
         expect(UploadedFile.prototype.callback.callCount).to.equal(0);
       }
     );
-
   });
 
   it('throws upload errors', function() {
