@@ -79,12 +79,13 @@ describe('uploaded-file', () => {
     file.setValidated();
     let json = JSON.parse(file.toJSON());
     expect(json).to.have.keys(
-      'id', 'path', 'name', 'size', 'audio', 'video',
+      'id', 'path', 'name', 'mime', 'size', 'audio', 'video',
       'downloaded', 'valid', 'processed', 'error',
       // DEPRECATED
       'duration', 'format', 'bitrate', 'frequency', 'channels', 'layout');
     expect(json.id).to.equal(1234);
     expect(json.path).to.equal('foo/bar');
+    expect(json.mime).to.equal('application/octet-stream');
   });
 
   describe('mimeType', () => {
