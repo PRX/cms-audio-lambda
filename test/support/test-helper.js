@@ -8,6 +8,7 @@ const region = match && match[1];
 const fs = require('fs');
 const s3 = new (require('aws-sdk')).S3();
 const sqs = new (require('aws-sdk')).SQS({region: region});
+const logger = require('../../lib/logger');
 const AudioEvent = require('../../lib/audio-event');
 
 // global includes
@@ -15,6 +16,25 @@ global.expect = require('chai').expect;
 global.Q = require('q');
 global.sinon = require('sinon');
 global.nock = require('nock');
+
+// logger spies
+exports.spyLogger = () => {
+  let loggers = {log: [], info: [], warn: [], error: []};
+  beforeEach(() => {
+    loggers.log = [], loggers.info = [], loggers.warn = [], loggers.error = [];
+    sinon.stub(logger, 'log', msg => loggers.log.push(msg));
+    sinon.stub(logger, 'info', msg => loggers.info.push(msg));
+    sinon.stub(logger, 'warn', msg => loggers.warn.push(msg));
+    sinon.stub(logger, 'error', msg => loggers.error.push(msg));
+  });
+  afterEach(() => {
+    logger.log.restore();
+    logger.info.restore();
+    logger.warn.restore();
+    logger.error.restore();
+  });
+  return loggers;
+};
 
 // helper methods
 exports.minutesFromNow = (mins) => {

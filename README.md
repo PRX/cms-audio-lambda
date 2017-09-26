@@ -21,6 +21,37 @@ Triggered via SNS notifications (see [Announce](https://github.com/PRX/announce)
 
 1. TODO: since audio-files are only soft-deleted by CMS, not sure this would ever happen.
 
+### Callbacks
+
+SQS callbacks contain the following JSON data:
+
+| Key  | Sub-key    | Description |
+| ---- | ---------- | ----------- |
+| id   |            | ID of the SNS message that triggered this job
+| path |            | Destination path in S3 the file was copied to
+| name |            | File name
+| mime |            | Mime-type of the file
+| size |            | Size of the file in bytes
+| audio |           | Detected audio stream metadata (or undefined)
+|       | duration  | Duration in ms
+|       | format    | Detected codec string ('mp2' / 'mp3')
+|       | bitrate   | Audio bitrate (96000 / 128000)
+|       | frequency | Audio frequency hz (44100 / 48000)
+|       | channels  | Number of channels (1 / 2 / 4)
+|       | layout    | Channel layout string ('mono' / 'stereo')
+| video |           | Detected video stream metadata (or undefined)
+|       | duration  | Duration in ms
+|       | format    | Detected codec string ('h264' / 'theora' / 'flv1')
+|       | bitrate   | Video bitrate
+|       | width     | Video width in pixels
+|       | height    | Video height in pixels
+|       | aspect    | Aspect ratio string ('1:1' / '0:1')
+|       | framerate | Frame rate string ('30:1')
+| downloaded |      | Boolean if the audio download succeeded
+| valid      |      | Boolean if ffprobe recognized any audio/video streams
+| processed  |      | Boolean if uploading to S3 destination succeeded
+| error      |      | String if any error occurred in the above 3 states
+
 ## Developing
 
 Make sure you have AWS credentials locally (usually in `~/.aws/credentials`) that are able to access

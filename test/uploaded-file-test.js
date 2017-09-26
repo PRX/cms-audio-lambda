@@ -2,10 +2,9 @@
 
 const helper = require('./support/test-helper');
 const UploadedFile = require('../lib/uploaded-file');
-const mimeType = (format, type) => {
+const mimeType = (overrides) => {
   let file = new UploadedFile({});
-  file.format = format;
-  file.contentType = type;
+  Object.keys(overrides).forEach(k => file[k] = overrides[k]);
   return file.mimeType();
 }
 
@@ -32,13 +31,28 @@ describe('uploaded-file', () => {
   it('sets validated', () => {
     let file = new UploadedFile({});
     expect(file.valid).to.equal(false);
+    expect(file.size).to.be.null;
+    expect(file.audio).to.be.null;
+    expect(file.video).to.be.null;
     file.setValidated();
     expect(file.valid).to.equal(false);
-    file.setValidated({duration: 1, size: 2, format: 'mp3'});
+    expect(file.size).to.be.null;
+    expect(file.audio).to.be.null;
+    expect(file.video).to.be.null;
+    file.setValidated({
+      size: 2,
+      audio: {foo: 'bar'},
+      video: {bar: 'foo'},
+      deprecated: {duration: 1, format: 'mp3', bitrate: 123}
+    });
     expect(file.valid).to.equal(true);
-    expect(file.duration).to.equal(1);
     expect(file.size).to.equal(2);
+    expect(file.audio.foo).to.equal('bar');
+    expect(file.video.bar).to.equal('foo');
+    // DEPRECATED
+    expect(file.duration).to.equal(1);
     expect(file.format).to.equal('mp3');
+    expect(file.bitrate).to.equal(123);
   });
 
   it('sets processed', () => {
@@ -64,28 +78,37 @@ describe('uploaded-file', () => {
     file.setDownloaded({name: 'foo.bar'});
     file.setValidated();
     let json = JSON.parse(file.toJSON());
-    expect(json).to.have.keys('id', 'path', 'name', 'duration', 'size', 'format',
-      'bitrate', 'frequency', 'channels', 'layout', 'downloaded', 'valid',
-      'processed', 'error');
+    expect(json).to.have.keys(
+      'id', 'path', 'name', 'mime', 'size', 'audio', 'video',
+      'downloaded', 'valid', 'processed', 'error',
+      // DEPRECATED
+      'duration', 'format', 'bitrate', 'frequency', 'channels', 'layout');
     expect(json.id).to.equal(1234);
     expect(json.path).to.equal('foo/bar');
+    expect(json.mime).to.equal('application/octet-stream');
   });
 
-  it('gets translated mimetype from file format', () => {
-    expect(mimeType('foo')).to.equal('audio/foo');
-    expect(mimeType('mp1')).to.equal('audio/mpeg');
-    expect(mimeType('mp2')).to.equal('audio/mpeg');
-    expect(mimeType('mp3')).to.equal('audio/mpeg');
-    expect(mimeType('mpg')).to.equal('audio/mpeg');
-    expect(mimeType('mpeg')).to.equal('audio/mpeg');
-    expect(mimeType('mp4')).to.equal('audio/mp4');
-    expect(mimeType('m4a')).to.equal('audio/mp4');
-  });
+  describe('mimeType', () => {
 
-  it('falls back to the mimetype from the downloaded file', () => {
-    expect(mimeType(null, 'foo/bar')).to.equal('foo/bar');
-    expect(mimeType(null, 'any/thing')).to.equal('any/thing');
-    expect(mimeType(null, null)).to.equal(undefined);
+    helper.spyLogger();
+
+    it('translates audio formats', () => {
+      expect(mimeType({audio: {}})).to.equal('application/octet-stream');
+      expect(mimeType({audio: {format: 'foo'}})).to.equal('audio/foo');
+      expect(mimeType({audio: {format: 'mp3'}})).to.equal('audio/mpeg');
+    });
+
+    it('translates video types', () => {
+      expect(mimeType({video: {}})).to.equal('application/octet-stream');
+      expect(mimeType({video: {format: 'foo'}})).to.equal('video/foo');
+      expect(mimeType({video: {format: 'h264'}})).to.equal('video/mp4');
+    });
+
+    it('falls back with no audio/video', () => {
+      expect(mimeType({})).to.equal('application/octet-stream');
+      expect(mimeType({contentType: 'foo/bar'})).to.equal('foo/bar');
+    });
+
   });
 
   describe('with an sqs queue', () => {

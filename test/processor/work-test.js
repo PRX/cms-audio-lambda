@@ -8,6 +8,7 @@ describe('processor-work', () => {
 
   const TEST_DEST = `${process.env.TEST_FOLDER}/2345`;
 
+  let logs = helper.spyLogger();
   let s3AudioPath = helper.putS3TestFile('test.mp3');
   let s3ImagePath = helper.putS3TestFile('png.mp3');
 
@@ -34,7 +35,7 @@ describe('processor-work', () => {
   });
 
   // spy on uploaded-file callbacks
-  beforeEach(() => sinon.stub(UploadedFile.prototype, 'callback'));
+  beforeEach(() => sinon.stub(UploadedFile.prototype, 'callback').returns(Q('anything')));
   afterEach(() => UploadedFile.prototype.callback.restore());
   const getUploadedFile = () => {
     expect(UploadedFile.prototype.callback.callCount).to.equal(1);
@@ -68,13 +69,13 @@ describe('processor-work', () => {
     ae.body.uploadPath = `https://s3.amazonaws.com/${s3ImagePath}`;
     expect(ae.invalid).to.be.undefined;
     return processor.work(ae).then(success => {
-      expect(success).to.be.false;
+      expect(success).to.be.true;
 
       let file = getUploadedFile();
       expect(file.downloaded).to.equal(true);
       expect(file.valid).to.equal(false);
-      expect(file.processed).to.equal(false);
-      expect(file.error).to.match(/non-audio file/i);
+      expect(file.processed).to.equal(true);
+      expect(file.error).to.be.null;
     });
   });
 
@@ -89,21 +90,32 @@ describe('processor-work', () => {
       expect(file.valid).to.equal(false);
       expect(file.processed).to.equal(false);
       expect(file.error).to.match(/got 403 for url:/i);
+      expect(logs.warn.length).to.equal(1);
+      expect(logs.warn[0]).to.match(/got 403 for url:/i);
     });
   });
 
+  it('throws 503 download errors', function() {
+    nock('http://foo.bar').get('/fivehundred.mp3').reply(503);
+    ae.body.uploadPath = `http://foo.bar/fivehundred.mp3`;
+    expect(ae.invalid).to.be.undefined;
+    return processor.work(ae).then(
+      (success) => { throw new Error('should have gotten an error'); },
+      (err) => {
+        expect(err.message).to.match(/got 503 for/i);
+        expect(UploadedFile.prototype.callback.callCount).to.equal(0);
+      }
+    );
+  });
+
   it('throws upload errors', function() {
-    sinon.stub(processor, 'upload').returns(Q.reject(new Error('upload-err')));
+    sinon.stub(processor, 'uploadAndCopy').returns(Q.reject(new Error('upload-err')));
     return processor.work(ae).then(
       (success) => { throw 'should have gotten an error'; },
       (err) => {
-        processor.upload.restore();
+        processor.uploadAndCopy.restore();
         expect(err.message).to.match(/upload-err/i);
-        let file = getUploadedFile();
-        expect(file.downloaded).to.equal(true);
-        expect(file.valid).to.equal(true);
-        expect(file.processed).to.equal(false);
-        expect(file.error).to.be.null;
+        expect(UploadedFile.prototype.callback.callCount).to.equal(0);
       }
     );
   });
