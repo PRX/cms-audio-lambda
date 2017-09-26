@@ -22,5 +22,5 @@ lambda.deploy({
   configFile: `config/${envName}.env`,
   region: process.env.AWS_REGION || 'us-east-1',
   functionName: process.env.AWS_FUNCTION_NAME || 'cms-audio-lambda',
-  excludeGlobs: '.env env-example test'
+  excludeGlobs: '.env env-example test tmp'
 });
