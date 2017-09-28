@@ -85,6 +85,19 @@ describe('processor-validate', () => {
     });
   });
 
+  it('does not mistake album art as a video', () => {
+    return processor.validate(helper.readPath('withpng.mp3')).then(meta => {
+      expect(meta.size).to.equal(9695);
+      expect(meta.audio.duration).to.equal(1045);
+      expect(meta.audio.format).to.equal('mp3');
+      expect(meta.audio.bitrate).to.equal(64000);
+      expect(meta.audio.frequency).to.equal(44100);
+      expect(meta.audio.channels).to.equal(1);
+      expect(meta.audio.layout).to.equal('mono');
+      expect(meta.video).to.be.undefined;
+    });
+  });
+
   it('rejects unknown ffprobe failures', () => {
     let err = Q.reject(new Error('Some unknown error'));
     return processor.validate(helper.readPath('test.mp3'), err).then(
