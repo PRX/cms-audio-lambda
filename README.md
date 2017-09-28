@@ -27,7 +27,7 @@ SQS callbacks contain the following JSON data:
 
 | Key  | Sub-key    | Description |
 | ---- | ---------- | ----------- |
-| id   |            | ID of the SNS message that triggered this job
+| id   |            | ID of the AudioFile that triggered this job
 | path |            | Destination path in S3 the file was copied to
 | name |            | File name
 | mime |            | Mime-type of the file
