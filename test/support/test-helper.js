@@ -49,6 +49,17 @@ exports.readPath = (name) => {
 exports.readSize = (path) => {
   return fs.statSync(path).size;
 }
+exports.gone = (path) => {
+  try {
+    exports.readSize(path);
+    return false;
+  } catch (err) {
+    if (err.message && err.message.match(/ENOENT/)) {
+      return true;
+    }
+    throw err;
+  }
+}
 
 // temp file to s3
 const putFiles = {};
