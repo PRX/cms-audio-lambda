@@ -11,7 +11,7 @@ describe('processor-download', () => {
     let url = `s3://${s3Path}`;
     return processor.download(url).then(data => {
       expect(data.name).to.equal('test.mp3');
-      expect(data.localPath).to.equal('/tmp/test.mp3');
+      expect(data.localPath).to.match(/^\/tmp\/.{8}-.{4}-.{4}-.{4}-.{12}$/);
       expect(data.contentType).to.be.undefined; // TODO: get this from s3 stream
       expect(helper.readSize(data.localPath)).to.equal(12582);
     });
@@ -21,7 +21,7 @@ describe('processor-download', () => {
     let url = `https://s3.amazonaws.com/${s3Path}`;
     return processor.download(url).then(data => {
       expect(data.name).to.equal('test.mp3');
-      expect(data.localPath).to.equal('/tmp/test.mp3');
+      expect(data.localPath).to.match(/^\/tmp\/.{8}-.{4}-.{4}-.{4}-.{12}$/);
       expect(data.contentType).to.equal('audio/mpeg');
       expect(helper.readSize(data.localPath)).to.equal(12582);
     });
@@ -31,7 +31,7 @@ describe('processor-download', () => {
     let url = `https://dts.podtrac.com/redirect.mp3/s3.amazonaws.com/${s3Path}`;
     return processor.download(url).then(data => {
       expect(data.name).to.equal('test.mp3');
-      expect(data.localPath).to.equal('/tmp/test.mp3');
+      expect(data.localPath).to.match(/^\/tmp\/.{8}-.{4}-.{4}-.{4}-.{12}$/);
       expect(data.contentType).to.equal('audio/mpeg');
       expect(helper.readSize(data.localPath)).to.equal(12582);
     });
@@ -129,7 +129,7 @@ describe('processor-download', () => {
     nock('http://foo.bar').get('/okay.mp3').reply(200, '--mp3--', {'Content-Length': 7});
     return processor.download('http://foo.bar/okay.mp3').then(data => {
       expect(data.name).to.equal('okay.mp3');
-      expect(data.localPath).to.equal('/tmp/okay.mp3');
+      expect(data.localPath).to.match(/^\/tmp\/.{8}-.{4}-.{4}-.{4}-.{12}$/);
       expect(data.contentType).to.be.undefined;
       expect(helper.readSize(data.localPath)).to.equal(7);
     });

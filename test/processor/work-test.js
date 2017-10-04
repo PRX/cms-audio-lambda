@@ -56,6 +56,7 @@ describe('processor-work', () => {
       expect(file.downloaded).to.equal(true);
       expect(file.valid).to.equal(true);
       expect(file.processed).to.equal(true);
+      expect(helper.gone(file.localPath)).to.equal(true);
 
       return helper.listS3Path(TEST_DEST).then(keys => {
         expect(keys.length).to.equal(2);
@@ -76,6 +77,7 @@ describe('processor-work', () => {
       expect(file.valid).to.equal(false);
       expect(file.processed).to.equal(true);
       expect(file.error).to.be.null;
+      expect(helper.gone(file.localPath)).to.equal(true);
     });
   });
 
@@ -90,6 +92,7 @@ describe('processor-work', () => {
       expect(file.valid).to.equal(false);
       expect(file.processed).to.equal(false);
       expect(file.error).to.match(/got 403 for url:/i);
+      expect(file.localPath).to.be.null;
       expect(logs.warn.length).to.equal(1);
       expect(logs.warn[0]).to.match(/got 403 for url:/i);
     });
