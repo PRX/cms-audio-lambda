@@ -1,0 +1,15 @@
+version: '2'
+services:
+  test:
+    build: .
+    image: cmsaudiolambda
+    command: test
+    volumes:
+      - ./lib:/app/lib
+      - ./test:/app/test
+      - ./package.json:/app/package.json
+    environment:
+      FFMPEG_PATH: bin/ffmpeg
+      FFPROBE_PATH: bin/ffprobe
+    env_file:
+      - .env
