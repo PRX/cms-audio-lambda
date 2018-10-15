@@ -8,6 +8,7 @@ env:
     CMS_ACCESS_KEY_ID: "/prx/test/cms-audio-lambda/AWS_ACCESS_KEY_ID"
     CMS_DEFAULT_REGION: "/prx/test/cms-audio-lambda/AWS_DEFAULT_REGION"
     CMS_SECRET_ACCESS_KEY: "/prx/test/cms-audio-lambda/AWS_SECRET_ACCESS_KEY"
+    CODECOV_TOKEN: "/prx/test/cms-audio-lambda/CODECOV_TOKEN"
 phases:
   build:
     commands:
@@ -15,6 +16,7 @@ phases:
       - "echo AWS_ACCESS_KEY_ID=$CMS_ACCESS_KEY_ID > .env"
       - "echo AWS_DEFAULT_REGION=$CMS_DEFAULT_REGION >> .env"
       - "echo AWS_SECRET_ACCESS_KEY=$CMS_SECRET_ACCESS_KEY >> .env"
+      - "echo CODECOV_TOKEN=$CODECOV_TOKEN >> .env"
       - "docker-compose build"
       - "docker-compose run test ci"
   post_build:
