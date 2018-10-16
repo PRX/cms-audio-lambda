@@ -1,7 +1,7 @@
 'use strict';
 
 // test env configuration
-require('dotenv').config({path: `${__dirname}/../../env-example`});
+require('dotenv').config();
 let match = process.env.SQS_CALLBACK.match(/sqs\.(.+)\.amazonaws\.com/);
 
 const region = match && match[1];
