@@ -1,8 +1,8 @@
 #!/bin/bash
 FFMPEG_BIN="https://s3.amazonaws.com/prx-tech/archives/ffmpeg-release-64bit-static.tar.xz"
 
-# download ffmpeg and ffprobe
-if [[ ! -f bin/ffmpeg || ! -f bin/ffprobe ]]; then
+# we really only need ffprobe, for now
+if [[ ! -f bin/ffprobe ]]; then
   echo "Downloading ffmpeg static build ..."
   curl -s $FFMPEG_BIN | unxz | tar x
   if [ $? -ne 0 ]; then
@@ -12,10 +12,9 @@ if [[ ! -f bin/ffmpeg || ! -f bin/ffprobe ]]; then
 
   echo "Moving to bin directory ..."
   mkdir -p bin
-  mv ffmpeg-*-static/ffmpeg bin/
   mv ffmpeg-*-static/ffprobe bin/
   rm -rf ffmpeg-*-static
-  if [[ ! -f bin/ffmpeg || ! -f bin/ffprobe ]]; then
+  if [[ ! -f bin/ffprobe ]]; then
     echo "ERROR: something went wrong - ffmmpeg not present"
     exit 1
   fi
