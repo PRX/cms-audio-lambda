@@ -7,7 +7,7 @@
 Dockerfile
 docker-compose.yml
 /build*
-/redis-api
+/coverage
 /test
 /tmp
 *.test.js
