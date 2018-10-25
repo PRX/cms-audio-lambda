@@ -1,16 +1,19 @@
 {
   "name": "cms-audio-lambda",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">= 8.10.0"
+  },
   "description": "Lambda audio processing for cms.prx.org audio file uploads",
   "main": "index.js",
   "scripts": {
-    "start": "npm test",
     "test": "mocha test/**",
     "ci": "istanbul cover _mocha -- test/** && codecov",
     "watch": "mocha test/** -w",
-    "deploy-dev": "./get-ffmpeg && node bin/deploy development",
-    "deploy-staging": "./get-ffmpeg && node bin/deploy staging",
-    "deploy-prod": "./get-ffmpeg && node bin/deploy production"
+    "build": "yarn run build-sync && yarn run build-prune && yarn run build-zip",
+    "build-sync": "rsync -crl --delete --exclude-from .lambdaignore . build",
+    "build-prune": "cd build && yarn --production",
+    "build-zip": "rm -f build.zip && cd build && zip -rq ../build.zip ."
   },
   "repository": {
     "type": "git",
@@ -19,20 +22,19 @@
   "author": "ryan cavis <ryan@prx.org>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.4.7",
-    "fluent-ffmpeg": "^2.1.0",
+    "fluent-ffmpeg": "^2.1.2",
     "follow-redirects": "^1.2.3",
     "q": "^1.4.1",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
+    "aws-sdk": "^2.335.0",
     "chai": "^3.5.0",
-    "codecov": "^1.0.1",
+    "codecov": "PRX/codecov-node",
     "dotenv": "^2.0.0",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3",
     "nock": "^9.0.9",
-    "node-lambda": "^0.8.13",
     "sinon": "^1.17.5"
   }
 }

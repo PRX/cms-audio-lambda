@@ -1,6 +1,5 @@
-# cms-audio-lambda
+# CMS Audio Lamda
 
-[![Build Status](https://snap-ci.com/PRX/cms-audio-lambda/branch/master/build_image)](https://snap-ci.com/PRX/cms-audio-lambda/branch/master)
 [![codecov](https://codecov.io/gh/PRX/cms-audio-lambda/branch/master/graph/badge.svg)](https://codecov.io/gh/PRX/cms-audio-lambda)
 
 ## Description
@@ -19,7 +18,8 @@ Triggered via SNS notifications (see [Announce](https://github.com/PRX/announce)
 
 #### On `delete`
 
-1. TODO: since audio-files are only soft-deleted by CMS, not sure this would ever happen.
+1. Since audio-files are only soft-deleted by CMS, this lambda doesn't actually
+   do anything with them.  So this is a TODO!
 
 ### Callbacks
 
@@ -52,32 +52,44 @@ SQS callbacks contain the following JSON data:
 | processed  |      | Boolean if uploading to S3 destination succeeded
 | error      |      | String if any error occurred in the above 3 states
 
-## Developing
+# Installation
 
-Make sure you have AWS credentials locally (usually in `~/.aws/credentials`) that are able to access
-the `TEST_BUCKET` and `DESTINATION_BUCKET` defined in `config/test.env`.  Then, just...
+To get started, first run an `yarn install`.  Or if you're using Docker, then
+`docker-compose build`.
+
+## Tests
+
+You do need a writeable S3 bucket and SQS to run the full test suite. The test/dev
+values for these are already set in the `env-example`, so you really just need
+some local AWS credentials (usually in `~/.aws/credentials`) that are able to
+access these resources.
 
 ```
-npm install
-npm test # or npm run watch
+cp env-example .env
+yarn
+yarn test
+yarn run watch
+```
+
+Another option is to use Docker (in which case you'll have to provide some AWS
+credentials to the docker container itself, via ENV variables):
+
+```
+cp env-example .env
+echo AWS_ACCESS_KEY_ID=some-access-key >> .env
+echo AWS_SECRET_ACCESS_KEY=some-secret >> .env
+echo AWS_DEFAULT_REGION=us-east-1 >> .env
+
+docker-compose build
+docker-compose run test
 ```
 
 ## Deploying
 
-Deployment to AWS is handled by [node-lambda](https://www.npmjs.com/package/node-lambda),
-with some hacks! No native bindings are used (we bundle a prebuilt 64bit ffmpeg binary),
-so you can build/deploy this function from anywhere.
+Deploying is handled by the PRX [Infrastructure](https://github.com/PRX/Infrastructure) repo,
+using CloudFormation.  Internally, this will run the `yarn run build` command to
+zip the lambda code and upload it to S3.
 
-To create a new Lambda function, you should `cp env-example .env`. Then manually
-deploy it using `./node_modules/node-lambda deploy -e [development|staging|production]`.
-This will create/overwrite any configuration changes you've made to the lambda, so you
-only want to use this for initial setup.
+# License
 
-To update an existing Lambda function, use the "deploy-ENV" scripts in `package.json`.
-No `.env` is required, as the non-secret configs are in the `/config` folder.
-
-```
-npm run deploy-dev
-npm run deploy-staging
-npm run deploy-prod
-```
+[MIT License](http://opensource.org/licenses/MIT)

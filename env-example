@@ -1,10 +1,4 @@
-AWS_ROLE_ARN=your-arn-here
-AWS_REGION=us-east-1
-AWS_FUNCTION_NAME=cms-audio-lambda
-AWS_HANDLER=index.handler
-AWS_MEMORY_SIZE=256
-AWS_TIMEOUT=60
-AWS_DESCRIPTION=Audio processing for cms.prx.org
-AWS_RUNTIME=nodejs4.3
-EXCLUDE_GLOBS=".env env-example *.log .git .gitignore config test"
-PACKAGE_DIRECTORY=build
+TEST_BUCKET=test.mediajoint.prx.org
+TEST_FOLDER=publish-audio-worker-tests
+DESTINATION_BUCKET=test.mediajoint.prx.org
+SQS_CALLBACK=https://sqs.us-east-1.amazonaws.com/561178107736/test_cms_audio_callback

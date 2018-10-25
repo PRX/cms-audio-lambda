@@ -36,15 +36,6 @@ describe('audio-event', () => {
     expect(ie.decodeEnvironment('whatev:foobar_blah')).to.equal(null);
   });
 
-  it('validates the topic environment', () => {
-    ie.env = 'production';
-    expect(ie.validate).to.throw(/environment mismatch for topic/i);
-    ie.env = null;
-    expect(ie.validate).to.throw(/environment mismatch for topic/i);
-    ie.env = 'test';
-    expect(ie.validate).to.not.throw();
-  });
-
   it('validates the message subject', () => {
     ie.subject = 'foobar';
     expect(ie.validate).to.throw(/invalid message subject/i);

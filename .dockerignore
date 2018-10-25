@@ -1,0 +1,11 @@
+.env
+bin/ffmpeg
+bin/ffprobe
+build
+db
+Dockerfile
+docker-compose.yml
+node_modules
+tmp
+*.log
+*.zip

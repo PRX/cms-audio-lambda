@@ -1,37 +1,30 @@
-version: 0.1
-environment_variables:
-  plaintext:
-    FFPROBE_PATH: "bin/ffprobe"
-    BUILD_PHASE_MARKER: build_phase_complete
+version: 0.2
+env:
+  variables:
+    PRX_LAMBDA_CODE_S3_KEY: "lambda/PRX-cms-audio-lambda.zip"
+    PRX_LAMBDA_CODE_CONFIG_PARAMETERS: "CmsAudioLambdaCodeS3ObjectVersion"
+    PRX_LAMBDA_ARCHIVE_BUILD_PATH: "/app/build.zip"
+  parameter-store:
+    CMS_ACCESS_KEY_ID: "/prx/test/cms-audio-lambda/AWS_ACCESS_KEY_ID"
+    CMS_DEFAULT_REGION: "/prx/test/cms-audio-lambda/AWS_DEFAULT_REGION"
+    CMS_SECRET_ACCESS_KEY: "/prx/test/cms-audio-lambda/AWS_SECRET_ACCESS_KEY"
+    CODECOV_TOKEN: "/prx/test/cms-audio-lambda/CODECOV_TOKEN"
 phases:
-  install:
-    commands:
-      - apt-get update -y
-      - apt-get install -y jq
-  pre_build:
-    commands:
-      - npm install
-      - chmod +x get-ffmpeg
-      - ./get-ffmpeg
   build:
     commands:
-      - npm test
-      - touch $BUILD_PHASE_MARKER
+      - "cd $(ls -d */|head -n 1)"
+      - "cp env-example .env"
+      - "echo AWS_ACCESS_KEY_ID=$CMS_ACCESS_KEY_ID >> .env"
+      - "echo AWS_DEFAULT_REGION=$CMS_DEFAULT_REGION >> .env"
+      - "echo AWS_SECRET_ACCESS_KEY=$CMS_SECRET_ACCESS_KEY >> .env"
+      - "echo CODECOV_TOKEN=$CODECOV_TOKEN >> .env"
+      - "echo CODEBUILD_BUILD_ID=$CODEBUILD_BUILD_ID >> .env"
+      - "echo PRX_REPO=$PRX_REPO >> .env"
+      - "echo PRX_COMMIT=$PRX_COMMIT >> .env"
+      - "echo PRX_BRANCH=$PRX_BRANCH >> .env"
+      - "echo PRX_GITHUB_PR=$PRX_GITHUB_PR >> .env"
+      - "docker-compose build"
+      - "docker-compose run test ci"
   post_build:
     commands:
-      - test -e $BUILD_PHASE_MARKER
-      - echo Zipping Lambda code
-      - zip -r cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION) . -x .git
-      - echo Copying zipped Lambda to S3 $CODE_BUCKET
-      - aws s3 cp cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION) s3://$CODE_BUCKET/cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION)
-      - aws s3 cp s3://$TEMPLATE_CONFIG_BUCKET/$TEMPLATE_CONFIG_ARTIFACT $TEMPLATE_CONFIG_ARTIFACT
-      - unzip $TEMPLATE_CONFIG_ARTIFACT
-      - jq --arg zip cms-audio-lambda-$(basename $CODEBUILD_SOURCE_VERSION) '.Parameters.CmsAudioLambdaZipName = $zip' staging.json > staging2.json
-      - rm staging.json && mv staging2.json staging.json
-      - zip $TEMPLATE_CONFIG_ARTIFACT staging.json
-      - aws s3 cp $TEMPLATE_CONFIG_ARTIFACT s3://$TEMPLATE_CONFIG_BUCKET/
-artifacts:
-  # It seems like CodePipeline and CodeBuild expect an artifact here. Currently
-  # we don't need any, so this is essentially a no-op.
-  files:
-    - README.md
+      - 'curl -sO "https://raw.githubusercontent.com/PRX/Infrastructure/master/ci/utility/post_build.sh" && chmod +x post_build.sh && bash ./post_build.sh'
