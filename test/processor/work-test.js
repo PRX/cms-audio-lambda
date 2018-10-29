@@ -106,7 +106,13 @@ describe('processor-work', () => {
       (success) => { throw new Error('should have gotten an error'); },
       (err) => {
         expect(err.message).to.match(/got 503 for/i);
-        expect(UploadedFile.prototype.callback.callCount).to.equal(0);
+
+        let file = getUploadedFile();
+        expect(file.downloaded).to.equal(false);
+        expect(file.valid).to.equal(false);
+        expect(file.processed).to.equal(false);
+        expect(file.error).to.match(/got 503 for url:/i);
+        expect(file.localPath).to.be.null;
       }
     );
   });
@@ -118,7 +124,14 @@ describe('processor-work', () => {
       (err) => {
         processor.uploadAndCopy.restore();
         expect(err.message).to.match(/upload-err/i);
-        expect(UploadedFile.prototype.callback.callCount).to.equal(0);
+
+        let file = getUploadedFile();
+        expect(file.downloaded).to.equal(true);
+        expect(file.valid).to.equal(false);
+        expect(file.processed).to.equal(false);
+        expect(file.error).to.match(/upload-err/i);
+        expect(file.localPath).not.to.be.null;
+        expect(helper.gone(file.localPath)).to.equal(true);
       }
     );
   });
@@ -131,8 +144,14 @@ describe('processor-work', () => {
       (success) => { throw 'should have gotten an error'; },
       (err) => {
         expect(err.message).to.match(/sqs-err/i);
-        let file = getUploadedFile();
-        expect(file.error).to.be.null;
+
+        // sqs errors actually happen twice - once on the initial send, and a
+        // second time when trying to report the first sqs error
+        expect(UploadedFile.prototype.callback.callCount).to.equal(2);
+        let f1 = UploadedFile.prototype.callback.thisValues[0];
+        let f2 = UploadedFile.prototype.callback.thisValues[1];
+        expect(f1).to.equal(f2);
+        expect(f1.error).to.match(/sqs-err/i);
       }
     );
   });
