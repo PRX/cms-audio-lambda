@@ -49,6 +49,30 @@ describe('processor-upload', () => {
     });
   });
 
+  it('uploads lowercased .mp3 extensions for broadcast versions', function() {
+    this.timeout(4000);
+
+    let file = {
+      name: 'test.MP3',
+      mimeType: () => 'audio/mpeg',
+      localPath: helper.readPath('test.mp3'),
+      path: TEST_PATH,
+      s3Bucket: null,
+      s3Key: null
+    };
+    return processor.uploadAndCopy(file).then(names => {
+      expect(names.length).to.equal(2);
+      expect(names[0]).to.equal('test.MP3');
+      expect(names[1]).to.equal('test_broadcast.mp3');
+
+      return helper.listS3Path(TEST_PATH).then(keys => {
+        expect(keys.length).to.equal(2);
+        expect(keys).to.include(`${TEST_PATH}/test.MP3`);
+        expect(keys).to.include(`${TEST_PATH}/test_broadcast.mp3`);
+      });
+    });
+  });
+
   it('copies originals directly from s3', function() {
     this.timeout(4000);
     let file = {
