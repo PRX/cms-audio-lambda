@@ -1,6 +1,7 @@
 .env
 bin/ffmpeg
 bin/ffprobe
+bin/mpck
 build
 db
 Dockerfile

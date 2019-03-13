@@ -13,4 +13,5 @@ ADD package.json ./
 RUN npm install --quiet --global yarn && yarn install
 ADD . .
 RUN ./bin/get-ffmpeg
+RUN ./bin/get-mpck
 RUN yarn run build

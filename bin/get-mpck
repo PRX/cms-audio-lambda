@@ -1,0 +1,27 @@
+#!/bin/bash
+MPCK_SRC="https://github.com/Sjord/checkmate/releases/download/v0.21/checkmate-0.21.tar.gz"
+
+# we really only need ffprobe, for now
+if [[ ! -f bin/mpck ]]; then
+  echo "Downloading mpck source tar ..."
+  curl -sL $MPCK_SRC | tar -xz -C bin/
+  if [ $? -ne 0 ]; then
+    echo "ERROR: unable to download mpck source!"
+    exit 1
+  fi
+
+  BINDIR=`realpath ./bin`
+  echo "Building mpck ..."
+  cd bin/checkmate-*
+  ./configure --bindir $BINDIR
+  make
+  make install
+
+  echo "Cleaning up ..."
+  cd ../
+  rm -rf checkmate-*
+
+  echo "Done!"
+else
+  echo "mpck already gotten"
+fi
