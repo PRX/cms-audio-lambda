@@ -11,5 +11,6 @@ services:
     environment:
       FFMPEG_PATH: bin/ffmpeg
       FFPROBE_PATH: bin/ffprobe
+      MPCK_PATH: bin/mpck
     env_file:
       - .env
