@@ -6,13 +6,14 @@ let match = process.env.SQS_CALLBACK.match(/sqs\.(.+)\.amazonaws\.com/);
 
 const region = match && match[1];
 const fs = require('fs');
+const chai = require('chai');
 const s3 = new (require('aws-sdk')).S3();
 const sqs = new (require('aws-sdk')).SQS({region: region});
 const logger = require('../../lib/logger');
 const AudioEvent = require('../../lib/audio-event');
 
 // global includes
-global.expect = require('chai').expect;
+global.expect = chai.expect;
 global.Q = require('q');
 global.sinon = require('sinon');
 global.nock = require('nock');
@@ -35,6 +36,16 @@ exports.spyLogger = () => {
   });
   return loggers;
 };
+
+// assert a promise rejects with an error
+chai.use(function (chai, utils) {
+  utils.addProperty(chai.Assertion.prototype, 'reject', function () {
+    return this._obj.then(
+      () => this.assert(false, 'expected promise rejection'),
+      err => err
+    );
+  });
+});
 
 // helper methods
 exports.minutesFromNow = (mins) => {

@@ -77,34 +77,26 @@ describe('mpck', () => {
   });
 
   it('rejects non-existent files', async () => {
-    let err = null;
-    try {
-      await mpck(helper.readPath('doesnotexist.mp3'));
-    } catch (e) {
-      err = e;
-    }
-    if (err) {
-      expect(err.message).to.match(/no such file or directory/i);
-    } else {
-      expect.fail('should have thrown an error');
-    }
+    const err = await expect(mpck('this/does/not/exist.mp3')).to.reject;
+    expect(err.message).to.match(/no such file or directory/i);
+    expect(err.noRetry).to.be.true;
   });
 
-  it('rejects mpck errors', async () => {
-    const path = process.env.MPCK_PATH;
-    let err = null;
-    try {
-      process.env.MPCK_PATH = '/usr/bin/does/not/exist/mpck';
-      await mpck(helper.readPath('test.mp3'));
-    } catch (e) {
-      err = e;
-    }
-    process.env.MPCK_PATH = path || '';
-    if (err) {
-      expect(err.message).to.match(/no such file or directory/i);
-    } else {
-      expect.fail('should have thrown an error');
-    }
+  describe('with a bad executable', () => {
+
+    let path;
+    beforeEach(() => {
+      path = process.env.MPCK_PATH;
+      process.env.MPCK_PATH = '/usr/bin/no_such_command';
+    });
+    afterEach(() => process.env.MPCK_PATH = path || '');
+
+    it('rejects mpck errors', async () => {
+      const err = await expect(mpck(helper.readPath('test.mp3'))).to.reject;
+      expect(err).to.match(/no_such_command: no such file/i);
+      expect(err.noRetry).to.be.true;
+    });
+
   });
 
 });
