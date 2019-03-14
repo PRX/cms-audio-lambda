@@ -43,7 +43,6 @@ SQS callbacks contain the following JSON data:
 |       | vbr       | Optional MPEG variable bitrate (true / false)
 |       | samples   | Optional number of MPEG samples
 |       | frames    | Optional number of MPEG frames
-|       | error     | Optional error message reading MPEG frames
 | video |           | Detected video stream metadata (or undefined)
 |       | duration  | Duration in ms
 |       | format    | Detected codec string ('h264' / 'theora' / 'flv1')

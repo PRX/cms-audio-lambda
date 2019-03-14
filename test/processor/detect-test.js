@@ -29,22 +29,10 @@ describe('processor-detect', () => {
     expect(meta.video).to.be.undefined;
   });
 
-  it('detects an mp3 with corrupted frames', async () => {
-    const meta = await detect(helper.readPath('corruptframes.mp3'));
-    expect(meta.size).to.equal(12582);
-    expect(meta.audio.duration).to.equal(1019);
-    expect(meta.audio.format).to.equal('mp3');
-    expect(meta.audio.bitrate).to.equal(96000);
-    expect(meta.audio.frequency).to.equal(44100);
-    expect(meta.audio.channels).to.equal(1);
-    expect(meta.audio.layout).to.equal('mono');
-    expect(meta.audio.layer).to.equal(3);
-    expect(meta.audio.vbr).to.equal(false);
-    expect(meta.audio.samples).to.equal(1152);
-    expect(meta.audio.frames).to.equal(39);
-    expect(meta.audio.error).not.to.be.undefined;
-    expect(meta.audio.error).to.match(/unidentified bytes/);
-    expect(meta.video).to.be.undefined;
+  it('rejects an mp3 with corrupted frames', async () => {
+    const err = await expect(detect(helper.readPath('corruptframes.mp3'))).to.reject;
+    expect(err).to.match(/unidentified bytes/);
+    expect(err.noRetry).to.be.true;
   });
 
   it('returns video file metadata', async () => {

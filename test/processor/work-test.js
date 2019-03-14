@@ -10,6 +10,7 @@ describe('processor-work', () => {
 
   let logs = helper.spyLogger();
   let s3AudioPath = helper.putS3TestFile('test.mp3');
+  let s3CorruptPath = helper.putS3TestFile('corruptframes.mp3');
   let s3ImagePath = helper.putS3TestFile('png.mp3');
 
   let ae;
@@ -77,6 +78,22 @@ describe('processor-work', () => {
       expect(file.detected).to.equal(false);
       expect(file.processed).to.equal(true);
       expect(file.error).to.be.null;
+      expect(helper.gone(file.localPath)).to.equal(true);
+    });
+  });
+
+  it('throws bad mp3 detection errors', function() {
+    ae.body.uploadPath = `https://s3.amazonaws.com/${s3CorruptPath}`;
+    expect(ae.invalid).to.be.undefined;
+    return processor.work(ae).then(success => {
+      expect(success).to.be.false;
+
+      let file = getUploadedFile();
+      expect(file.downloaded).to.equal(true);
+      expect(file.detected).to.equal(false);
+      expect(file.processed).to.equal(false);
+      expect(file.error).to.match(/bad mp3 file: unidentified bytes/i);
+      expect(file.localPath).not.to.be.null;
       expect(helper.gone(file.localPath)).to.equal(true);
     });
   });
