@@ -15,6 +15,7 @@ describe('processor-detect', () => {
     expect(meta.audio.channels).to.equal(1);
     expect(meta.audio.layout).to.equal('mono');
     expect(meta.audio.layer).to.equal(3);
+    expect(meta.audio.vbr).to.equal(false);
     expect(meta.audio.samples).to.equal(1152);
     expect(meta.audio.frames).to.equal(40);
     expect(meta.audio.error).to.be.undefined;
@@ -38,6 +39,7 @@ describe('processor-detect', () => {
     expect(meta.audio.channels).to.equal(1);
     expect(meta.audio.layout).to.equal('mono');
     expect(meta.audio.layer).to.equal(3);
+    expect(meta.audio.vbr).to.equal(false);
     expect(meta.audio.samples).to.equal(1152);
     expect(meta.audio.frames).to.equal(39);
     expect(meta.audio.error).not.to.be.undefined;
