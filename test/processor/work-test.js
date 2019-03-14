@@ -54,7 +54,7 @@ describe('processor-work', () => {
       expect(file.name).to.equal('test.mp3');
       expect(file.size).to.equal(12582);
       expect(file.downloaded).to.equal(true);
-      expect(file.valid).to.equal(true);
+      expect(file.detected).to.equal(true);
       expect(file.processed).to.equal(true);
       expect(helper.gone(file.localPath)).to.equal(true);
 
@@ -74,7 +74,7 @@ describe('processor-work', () => {
 
       let file = getUploadedFile();
       expect(file.downloaded).to.equal(true);
-      expect(file.valid).to.equal(false);
+      expect(file.detected).to.equal(false);
       expect(file.processed).to.equal(true);
       expect(file.error).to.be.null;
       expect(helper.gone(file.localPath)).to.equal(true);
@@ -89,7 +89,7 @@ describe('processor-work', () => {
 
       let file = getUploadedFile();
       expect(file.downloaded).to.equal(false);
-      expect(file.valid).to.equal(false);
+      expect(file.detected).to.equal(false);
       expect(file.processed).to.equal(false);
       expect(file.error).to.match(/got 403 for url:/i);
       expect(file.localPath).to.be.null;
@@ -109,7 +109,7 @@ describe('processor-work', () => {
 
         let file = getUploadedFile();
         expect(file.downloaded).to.equal(false);
-        expect(file.valid).to.equal(false);
+        expect(file.detected).to.equal(false);
         expect(file.processed).to.equal(false);
         expect(file.error).to.match(/got 503 for url:/i);
         expect(file.localPath).to.be.null;
@@ -127,7 +127,7 @@ describe('processor-work', () => {
 
         let file = getUploadedFile();
         expect(file.downloaded).to.equal(true);
-        expect(file.valid).to.equal(false);
+        expect(file.detected).to.equal(false);
         expect(file.processed).to.equal(false);
         expect(file.error).to.match(/upload-err/i);
         expect(file.localPath).not.to.be.null;

@@ -28,31 +28,26 @@ describe('uploaded-file', () => {
     expect(file.localPath).to.equal('something');
   });
 
-  it('sets validated', () => {
+  it('sets detected', () => {
     let file = new UploadedFile({});
-    expect(file.valid).to.equal(false);
+    expect(file.detected).to.equal(false);
     expect(file.size).to.be.null;
     expect(file.audio).to.be.null;
     expect(file.video).to.be.null;
-    file.setValidated();
-    expect(file.valid).to.equal(false);
+    file.setDetected();
+    expect(file.detected).to.equal(false);
     expect(file.size).to.be.null;
     expect(file.audio).to.be.null;
     expect(file.video).to.be.null;
-    file.setValidated({
+    file.setDetected({
       size: 2,
       audio: {foo: 'bar'},
-      video: {bar: 'foo'},
-      deprecated: {duration: 1, format: 'mp3', bitrate: 123}
+      video: {bar: 'foo'}
     });
-    expect(file.valid).to.equal(true);
+    expect(file.detected).to.equal(true);
     expect(file.size).to.equal(2);
     expect(file.audio.foo).to.equal('bar');
     expect(file.video.bar).to.equal('foo');
-    // DEPRECATED
-    expect(file.duration).to.equal(1);
-    expect(file.format).to.equal('mp3');
-    expect(file.bitrate).to.equal(123);
   });
 
   it('sets processed', () => {
@@ -76,13 +71,11 @@ describe('uploaded-file', () => {
   it('serializes to json', () => {
     let file = new UploadedFile({audioId: 1234, audioType: 'foo', audioDestinationPath: 'foo/bar'});
     file.setDownloaded({name: 'foo.bar'});
-    file.setValidated();
+    file.setDetected();
     let json = JSON.parse(file.toJSON());
     expect(json).to.have.keys(
       'id', 'path', 'name', 'mime', 'size', 'audio', 'video',
-      'downloaded', 'valid', 'processed', 'error',
-      // DEPRECATED
-      'duration', 'format', 'bitrate', 'frequency', 'channels', 'layout');
+      'downloaded', 'detected', 'processed', 'error');
     expect(json.id).to.equal(1234);
     expect(json.path).to.equal('foo/bar');
     expect(json.mime).to.equal('application/octet-stream');
