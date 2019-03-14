@@ -47,6 +47,7 @@ build
 *.mp3
 !test/test.mp3
 
-# ffmpeg binaries
+# binaries
 bin/ffmpeg
 bin/ffprobe
+bin/mpck

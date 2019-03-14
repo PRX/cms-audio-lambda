@@ -10,6 +10,7 @@ describe('processor-work', () => {
 
   let logs = helper.spyLogger();
   let s3AudioPath = helper.putS3TestFile('test.mp3');
+  let s3CorruptPath = helper.putS3TestFile('corruptframes.mp3');
   let s3ImagePath = helper.putS3TestFile('png.mp3');
 
   let ae;
@@ -42,7 +43,7 @@ describe('processor-work', () => {
     return UploadedFile.prototype.callback.thisValues[0];
   }
 
-  it('validates audio and uploads to s3', function() {
+  it('detects audio and uploads to s3', function() {
     this.timeout(5000);
 
     expect(ae.invalid).to.be.undefined;
@@ -54,7 +55,7 @@ describe('processor-work', () => {
       expect(file.name).to.equal('test.mp3');
       expect(file.size).to.equal(12582);
       expect(file.downloaded).to.equal(true);
-      expect(file.valid).to.equal(true);
+      expect(file.detected).to.equal(true);
       expect(file.processed).to.equal(true);
       expect(helper.gone(file.localPath)).to.equal(true);
 
@@ -66,7 +67,7 @@ describe('processor-work', () => {
     });
   });
 
-  it('catches non-audio validation errors', function() {
+  it('catches non-audio detection errors', function() {
     ae.body.uploadPath = `https://s3.amazonaws.com/${s3ImagePath}`;
     expect(ae.invalid).to.be.undefined;
     return processor.work(ae).then(success => {
@@ -74,9 +75,25 @@ describe('processor-work', () => {
 
       let file = getUploadedFile();
       expect(file.downloaded).to.equal(true);
-      expect(file.valid).to.equal(false);
+      expect(file.detected).to.equal(false);
       expect(file.processed).to.equal(true);
       expect(file.error).to.be.null;
+      expect(helper.gone(file.localPath)).to.equal(true);
+    });
+  });
+
+  it('throws bad mp3 detection errors', function() {
+    ae.body.uploadPath = `https://s3.amazonaws.com/${s3CorruptPath}`;
+    expect(ae.invalid).to.be.undefined;
+    return processor.work(ae).then(success => {
+      expect(success).to.be.false;
+
+      let file = getUploadedFile();
+      expect(file.downloaded).to.equal(true);
+      expect(file.detected).to.equal(false);
+      expect(file.processed).to.equal(false);
+      expect(file.error).to.match(/bad mp3 file: unidentified bytes/i);
+      expect(file.localPath).not.to.be.null;
       expect(helper.gone(file.localPath)).to.equal(true);
     });
   });
@@ -89,7 +106,7 @@ describe('processor-work', () => {
 
       let file = getUploadedFile();
       expect(file.downloaded).to.equal(false);
-      expect(file.valid).to.equal(false);
+      expect(file.detected).to.equal(false);
       expect(file.processed).to.equal(false);
       expect(file.error).to.match(/got 403 for url:/i);
       expect(file.localPath).to.be.null;
@@ -109,7 +126,7 @@ describe('processor-work', () => {
 
         let file = getUploadedFile();
         expect(file.downloaded).to.equal(false);
-        expect(file.valid).to.equal(false);
+        expect(file.detected).to.equal(false);
         expect(file.processed).to.equal(false);
         expect(file.error).to.match(/got 503 for url:/i);
         expect(file.localPath).to.be.null;
@@ -127,7 +144,7 @@ describe('processor-work', () => {
 
         let file = getUploadedFile();
         expect(file.downloaded).to.equal(true);
-        expect(file.valid).to.equal(false);
+        expect(file.detected).to.equal(false);
         expect(file.processed).to.equal(false);
         expect(file.error).to.match(/upload-err/i);
         expect(file.localPath).not.to.be.null;
