@@ -76,6 +76,14 @@ describe('mpck', () => {
     expect(meta.result.formattedError).to.match(/not enough frames found/);
   });
 
+  it('detects corrupt frames later in audio files', async () => {
+    const meta = await mpck(helper.readPath('corruptframes.mp3'));
+    expect(meta.size).to.equal(12582);
+    expect(meta.result.ok).to.be.undefined;
+    expect(meta.result.formattedError).not.to.be.undefined;
+    expect(meta.result.formattedError).to.match(/unidentified bytes/);
+  });
+
   it('rejects non-existent files', async () => {
     const err = await expect(mpck('this/does/not/exist.mp3')).to.reject;
     expect(err.message).to.match(/no such file or directory/i);
