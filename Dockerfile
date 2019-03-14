@@ -15,3 +15,7 @@ ADD . .
 RUN ./bin/get-ffmpeg
 RUN ./bin/get-mpck
 RUN yarn run build
+
+ENV FFMPEG_PATH bin/ffmpeg
+ENV FFPROBE_PATH bin/ffprobe
+ENV MPCK_PATH bin/mpck
