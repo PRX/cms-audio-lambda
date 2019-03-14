@@ -42,7 +42,7 @@ describe('processor-work', () => {
     return UploadedFile.prototype.callback.thisValues[0];
   }
 
-  it('validates audio and uploads to s3', function() {
+  it('detects audio and uploads to s3', function() {
     this.timeout(5000);
 
     expect(ae.invalid).to.be.undefined;
@@ -66,7 +66,7 @@ describe('processor-work', () => {
     });
   });
 
-  it('catches non-audio validation errors', function() {
+  it('catches non-audio detection errors', function() {
     ae.body.uploadPath = `https://s3.amazonaws.com/${s3ImagePath}`;
     expect(ae.invalid).to.be.undefined;
     return processor.work(ae).then(success => {

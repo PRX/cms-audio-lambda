@@ -4,14 +4,14 @@
 
 ## Description
 
-Lambda worker to process/validate for [cms.prx.org](https://github.com/PRX/cms.prx.org) audio-file uploads.
+Lambda worker to process/detect for [cms.prx.org](https://github.com/PRX/cms.prx.org) audio-file uploads.
 
 Triggered via SNS notifications (see [Announce](https://github.com/PRX/announce)), the lambda will:
 
 #### On `create` or `update`
 
 1. Download the `upload_path` for the audio file object (from S3 or just HTTP)
-2. Run `ffprobe` against the file to verify it's an mp3 and gather other metadata
+2. Run `ffprobe` to attempt to detect the file type. (Also runs `mpck` on mp3-ish files).
 3. Copy the original audio file to a destination S3 bucket/path (`public/audio_files/1234/filename.mp3`)
 4. Make an additional copy for the "broadcast" version CMS wants to use (`public/audio_files/1234/filename_broadcast.mp3`)
 5. Send success/failure/invalid messages back to CMS via SQS ([Shoryuken](https://github.com/phstc/shoryuken)), including some additional identify data about the audio length/type/etc.
@@ -39,6 +39,11 @@ SQS callbacks contain the following JSON data:
 |       | frequency | Audio frequency hz (44100 / 48000)
 |       | channels  | Number of channels (1 / 2 / 4)
 |       | layout    | Channel layout string ('mono' / 'stereo')
+|       | layer     | Optional MPEG layer (2 / 3)
+|       | vbr       | Optional MPEG variable bitrate (true / false)
+|       | samples   | Optional number of MPEG samples
+|       | frames    | Optional number of MPEG frames
+|       | error     | Optional error message reading MPEG frames
 | video |           | Detected video stream metadata (or undefined)
 |       | duration  | Duration in ms
 |       | format    | Detected codec string ('h264' / 'theora' / 'flv1')
@@ -48,14 +53,15 @@ SQS callbacks contain the following JSON data:
 |       | aspect    | Aspect ratio string ('1:1' / '0:1')
 |       | framerate | Frame rate string ('30:1')
 | downloaded |      | Boolean if the audio download succeeded
-| valid      |      | Boolean if ffprobe recognized any audio/video streams
+| detected   |      | Boolean if ffprobe recognized any audio/video streams
 | processed  |      | Boolean if uploading to S3 destination succeeded
 | error      |      | String if any error occurred in the above 3 states
 
 # Installation
 
 To get started, first run an `yarn install`.  Or if you're using Docker, then
-`docker-compose build`.
+`docker-compose build`.  If running locally, you will also need to have
+`ffprobe` and `mpck` installed.
 
 ## Tests
 
