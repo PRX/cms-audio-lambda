@@ -10,6 +10,9 @@ env:
     CMS_SECRET_ACCESS_KEY: "/prx/test/cms-audio-lambda/AWS_SECRET_ACCESS_KEY"
     CODECOV_TOKEN: "/prx/test/cms-audio-lambda/CODECOV_TOKEN"
 phases:
+  install:
+    runtime-versions:
+      docker: 18
   build:
     commands:
       - "cd $(ls -d */|head -n 1)"
