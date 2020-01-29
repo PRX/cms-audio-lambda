@@ -49,8 +49,8 @@ SQS callbacks contain the following JSON data:
 |       | bitrate   | Video bitrate
 |       | width     | Video width in pixels
 |       | height    | Video height in pixels
-|       | aspect    | Aspect ratio string ('1:1' / '0:1')
-|       | framerate | Frame rate string ('30:1')
+|       | aspect    | Aspect ratio string ('1:1' / '3:1')
+|       | framerate | Frame rate string ('30/1')
 | downloaded |      | Boolean if the audio download succeeded
 | detected   |      | Boolean if ffprobe recognized any audio/video streams
 | processed  |      | Boolean if uploading to S3 destination succeeded

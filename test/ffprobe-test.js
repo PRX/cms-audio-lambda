@@ -44,7 +44,7 @@ describe('ffprobe', () => {
     expect(meta.video.bitrate).to.equal(465641);
     expect(meta.video.height).to.equal(320);
     expect(meta.video.width).to.equal(560);
-    expect(meta.video.aspect).to.equal('0:1');
+    expect(meta.video.aspect).to.equal(null);
     expect(meta.video.framerate).to.equal('30/1');
   });
 
